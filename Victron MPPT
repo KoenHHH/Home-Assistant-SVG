@@ -6,29 +6,30 @@ tap_action:
   action: navigate
   navigation_path: ""
 triggers_update:
-  - sensor.mppt_yield_today
-  - sensor.mppt_state
-  - sensor.mppt_power
-  - sensor.mppt_current
-  - binary_sensor.mppt_bms
-  - binary_sensor.mppt_ve_can
+  - sensor.mppt_yield_today // Replace with your sensor
+  - sensor.mppt_state // Replace with your sensor
+  - sensor.mppt_power // Replace with your sensor
+  - sensor.mppt_current // Replace with your sensor
+  - binary_sensor.mppt_bms // Replace with your sensor
+  - binary_sensor.mppt_ve_can // Replace with your sensor
 custom_fields:
   mppt_controller: |
     [[[ 
-      // Get yield value from the sensor
+      // Get yield value from the sensor, Replace with your sensor
       let yieldValue = parseFloat(states['sensor.mppt_yield_today'].state || 0);
-      // Get entity name from the sensor
+      
+      // Get entity name from the sensor, Replace with your sensor
       let entityName = states['sensor.mppt_yield_today'].attributes?.friendly_name || 
                       'sensor.mppt_yield_today'.replace(/sensor\./, '').replace(/_/g, ' ');
       
-      // Get connection state
+      // Get connection state, Replace with your sensor
       let connectionState = states['sensor.mppt_state']?.state || 'unknown';
       
-      // Get BMS and VE CAN states
+      // Get BMS and VE CAN states, Replace with your sensor
       let bmsConnected = states['binary_sensor.mppt_bms']?.state === 'on';
       let veCanConnected = states['binary_sensor.mppt_ve_can']?.state === 'on';
       
-      // Get BMS and VE CAN states
+      // Get BMS and VE CAN states, Replace with your sensor
       let pvPower = parseFloat(states['sensor.mppt_power'].state || 0);
       let pvAmp = parseFloat(states['sensor.mppt_current'].state || 0);
       
