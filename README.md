@@ -2,7 +2,7 @@
 
 A collection of custom SVG-based components for Home Assistant that provide visual representations of various home systems and sensors.
 
-!MPPT Image
+!Mppt Image
 
 ## Overview
 
