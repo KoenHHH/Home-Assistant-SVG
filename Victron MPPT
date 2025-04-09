@@ -1,0 +1,128 @@
+type: custom:button-card
+entity: sensor.mppt_yield_today
+show_name: false
+show_icon: false
+tap_action:
+  action: navigate
+  navigation_path: ""
+triggers_update:
+  - sensor.mppt_yield_today
+  - sensor.mppt_state
+  - sensor.mppt_power
+  - sensor.mppt_current
+  - binary_sensor.mppt_bms
+  - binary_sensor.mppt_ve_can
+custom_fields:
+  mppt_controller: |
+    [[[ 
+      // Get yield value from the sensor
+      let yieldValue = parseFloat(states['sensor.mppt_yield_today'].state || 0);
+      // Get entity name from the sensor
+      let entityName = states['sensor.mppt_yield_today'].attributes?.friendly_name || 
+                      'sensor.mppt_yield_today'.replace(/sensor\./, '').replace(/_/g, ' ');
+      
+      // Get connection state
+      let connectionState = states['sensor.mppt_state']?.state || 'unknown';
+      
+      // Get BMS and VE CAN states
+      let bmsConnected = states['binary_sensor.mppt_bms']?.state === 'on';
+      let veCanConnected = states['binary_sensor.mppt_ve_can']?.state === 'on';
+      
+      // Get BMS and VE CAN states
+      let pvPower = parseFloat(states['sensor.mppt_power'].state || 0);
+      let pvAmp = parseFloat(states['sensor.mppt_current'].state || 0);
+      
+      // Colors
+      let mainBlue = '#2a7ab9';
+      let lightBlue = '#8cb7d9';
+      let orange = '#e95e16';
+      let connectedColor = '#67abe5';
+      let disconnectedColor = '#ff0000';
+      
+      // Calculate fill percentage (max at 15 kWh)
+      let maxYield = 15; 
+      let fillPercentage = Math.min(100, (yieldValue / maxYield) * 100);
+      
+      // Status indicators (different colors for different states)
+      let statusColor1 = '#333'; 
+      let statusColor2 = '#333';   
+      let statusColor3 = '#333';
+      
+      // Logic for status indicators based on connection state
+      if (connectionState === 'BULK') {
+        statusColor1 = '#67abe5';
+        statusColor2 = '#333';
+        statusColor3 = '#333';
+      } else if (connectionState === 'ABSORPTION') {
+        statusColor1 = '#333';
+        statusColor2 = '#c8a54d';
+        statusColor3 = '#333';
+      } else if (connectionState === 'FLOAT') {
+        statusColor1 = '#333';
+        statusColor2 = '#333';
+        statusColor3 = '#6fb06e';
+      }
+      
+      return `
+        <div style="width: 100%; padding: 5px; position: relative;">
+          <!-- Main MPPT Controller Body -->
+          <svg width="100%" viewBox="0 0 300 240" xmlns="http://www.w3.org/2000/svg">
+            <!-- Main blue body with rounded corners -->
+            <rect x="20" y="20" width="240" height="200" rx="10" ry="10" fill="${mainBlue}" />
+            
+            <!-- Entity name display area (top bar) -->
+            <text x="130" y="80" text-anchor="middle" font-size="35" fill="white" font-weight="bold">
+              ${entityName.length > 20 ? entityName.substring(0, 12) : entityName}
+            </text>
+            
+            <!-- Progress bar (orange) -->
+            <rect x="55" y="90" width="160" height="25" rx="3" ry="3" fill="${orange}" />
+            <rect x="60" y="155" width="${fillPercentage * 1.1}" height="10" rx="3" ry="3" fill="${orange}" />
+            
+            <!-- Yield value display -->
+            <text x="110" y="150" text-anchor="middle" font-size="35px" fill="white" font-weight="bold">
+              ${yieldValue.toFixed(2)} kWh
+            </text>
+            
+            <!-- Battery/PV text -->
+            <text x="135" y="195" text-anchor="end" font-size="12" fill="white" font-weight="bold">Battery</text>
+            <text x="165" y="195" text-anchor="end" font-size="12" fill="white" font-weight="bold">PV</text>
+            
+            <!-- BMS and VE CAN indicators (added as requested) -->
+            <rect x="40" y="215" width="12" height="12" fill="${bmsConnected ? connectedColor : disconnectedColor}" />
+            <text x="50" y="200" text-anchor="middle" font-size="12" fill="white" font-weight="bold" transform="rotate(270, 50, 200)">BMS</text>
+            
+            <rect x="60" y="215" width="12" height="12" fill="${veCanConnected ? connectedColor : disconnectedColor}" />
+            <text x="80" y="190" text-anchor="middle" font-size="12" fill="white" font-weight="bold" transform="rotate(270, 80, 200)">VE CAN</text>
+            
+            <!-- Control buttons area at bottom -->
+            <circle cx="110" cy="220" r="8" fill="#999" />
+            <circle cx="130" cy="220" r="8" fill="#999" />
+            <circle cx="150" cy="220" r="8" fill="#999" />
+            <circle cx="170" cy="220" r="8" fill="#999" />
+            <text x="110" y="210" text-anchor="middle" font-size="14" fill="white" font-weight="bold">+</text>
+            <text x="130" y="210" text-anchor="middle" font-size="14" fill="white" font-weight="bold">-</text>
+            <text x="150" y="210" text-anchor="middle" font-size="14" fill="white" font-weight="bold">-</text>
+            <text x="170" y="210" text-anchor="middle" font-size="14" fill="white" font-weight="bold">+</text>
+            
+            <!-- Status indicators -->
+            <circle cx="210" cy="200" r="6" fill="${statusColor1}" />
+            <text x="265" y="172" text-anchor="middle" font-size="14" fill="white" font-weight="bold" transform="rotate(270, 242, 200)">BULK</text>
+            <circle cx="226" cy="200" r="6" fill="${statusColor2}" />
+            <text x="280" y="190" text-anchor="middle" font-size="14" fill="white" font-weight="bold" transform="rotate(270, 242, 200)">ABSORPTION</text>
+            <circle cx="242" cy="200" r="6" fill="${statusColor3}" />
+            <text x="265" y="205" text-anchor="middle" font-size="14" fill="white" font-weight="bold" transform="rotate(270, 242, 200)">FLOAT</text>
+
+            <!-- Power and Amp -->
+            <text x="125" y="110" text-anchor="end" font-size="20" fill="white" font-weight="bold">${pvPower} W</text>
+            <text x="200" y="110" text-anchor="end" font-size="20" fill="white" font-weight="bold">${pvAmp} A</text>
+            
+          </svg>
+        </div>
+      `;
+    ]]]
+styles:
+  card:
+    - position: relative
+    - display: block
+    - width: 100%
