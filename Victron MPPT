@@ -35,7 +35,6 @@ custom_fields:
       
       // Colors
       let mainBlue = '#2a7ab9';
-      let lightBlue = '#8cb7d9';
       let orange = '#e95e16';
       let connectedColor = '#67abe5';
       let disconnectedColor = '#ff0000';
