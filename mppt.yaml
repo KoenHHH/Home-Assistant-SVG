@@ -28,7 +28,8 @@ custom_fields:
       // Get BMS and VE CAN states
       let bmsConnected = states['binary_sensor.mppt_bms']?.state === 'on';
       let veCanConnected = states['binary_sensor.mppt_ve_can']?.state === 'on';
-      
+
+      // Get POWER and AMP states
       let pvPower = parseFloat(states['sensor.mppt_pv_power'].state || 0);
       let pvAmp = parseFloat(states['sensor.mppt_current'].state || 0);
       
