@@ -2,7 +2,7 @@
 
 A custom button card for Home Assistant that displays Victron MPPT solar charge controller information in a visually appealing interface.
 
-![mppt](https://github.com/user-attachments/assets/57a3c052-b81e-4e5b-84b6-035603203883)
+<img width="164" alt="mppt" src="https://github.com/user-attachments/assets/3ffd1a95-15a0-4520-8fec-da39a38b28af" />
 
 ## Features
 
@@ -47,6 +47,8 @@ The card expects the following entities:
 - `sensor.mppt_state` - Charging state (BULK, ABSORPTION, FLOAT)
 - `binary_sensor.mppt_bms` - BMS connection status (on/off)
 - `binary_sensor.mppt_ve_can` - VE CAN connection status (on/off)
+- `sensor.mppt_power` - MPPT Power
+- `sensor.mppt_current` - MPPT Current
 
 ## Customization
 
