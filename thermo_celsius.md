@@ -54,10 +54,12 @@ The card includes several customization options within the code:
 
 ## Troubleshooting
 
-- If the animation doesn't work smoothly, check that your entity reports position changes properly
-- For shutters that use an inverted scale (0 = closed, 100 = open), adjust the minState and maxState values
-- If the shutter cover looks wrong, verify that your entity's current_position attribute follows standard conventions
-- Make sure your entity reports position as a number between 0-100
+### If the card doesn't display correctly:
+
+  - Check if the Button Card custom component is properly installed
+  - Verify that your temperature sensor entity exists and provides numerical values
+  - Make sure the temperature sensor has a state within the configured min/max range
+  - Check the Home Assistant logs for any JavaScript errors
 
 ## Advanced Usage
 
