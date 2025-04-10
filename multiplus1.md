@@ -70,7 +70,32 @@ cerbo/N/xxxxxxxxxxxx/vebus/276/Leds/
 - 1 = LED is on solid
 - 2 = LED is blinking
 
+### You can use mqtt-explorer to see your structure
+
 ### More info about LEDS meaning can be found on the victron website
+
+## Setting Up MQTT Sensors
+
+To use this card with MQTT data, you'll need to create sensors in your Home Assistant configuration.yaml
+# Example configuration.yaml entry for MQTT sensors
+
+```yaml
+mqtt:
+  sensor:
+    - name: "LED Mains"
+      state_topic: "cerbo/N/xxxxxxxxxxxx/vebus/276/Leds/Mains"
+      value_template: "{{ value_json.value }}"
+      unique_id: led_mains
+      
+    - name: "LED Bulk"
+      state_topic: "cerbo/N/xxxxxxxxxxxx/vebus/276/Leds/Bulk"
+      value_template: "{{ value_json.value }}"
+      unique_id: led_bulk
+      
+    # Add similar entries for all other LEDs
+```
+
+Replace N and xxxxxxxxxxxx with your actual system values.
 
 ## Customization Options
 
