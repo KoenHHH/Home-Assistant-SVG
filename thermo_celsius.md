@@ -1,4 +1,4 @@
-# Home Assistant Animated Thermometer Card
+# Animated Thermometer Card For Home Assistant 
 
 A stylish, customizable temperature visualization card for Home Assistant that displays temperature readings as an animated thermometer with color-coded temperature ranges.
 
@@ -58,7 +58,7 @@ The card includes several customization options within the code:
 
   - Check if the Button Card custom component is properly installed
   - Verify that your temperature sensor entity exists and provides numerical values
-  - Make sure the temperature sensor has a state within the configured min/max range
+  - Make sure the temperature sensor has a state within the configured min/max range OR change the thresholds.
   - Check the Home Assistant logs for any JavaScript errors
 
 ## Advanced Usage
