@@ -5,7 +5,6 @@ A collection of custom SVG-based components for Home Assistant that provide visu
 <img width="125" alt="battery" src="https://github.com/user-attachments/assets/0f1f505c-fa34-46b5-9929-e9f7b357fdc1" />
 <img width="125" alt="thermo" src="https://github.com/user-attachments/assets/181beedf-aa3c-44b3-8ba6-453e6dde0dbd" />
 <img width="125" alt="shutter" src="https://github.com/user-attachments/assets/cbe3bfef-d186-4c15-a494-29b5defc3ded" />
-<img width="125" alt="mppt (1)" src="https://github.com/user-attachments/assets/ce1fc51f-817c-40dc-a916-d6257fadb7f3" />
 
 
 ## Overview
