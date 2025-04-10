@@ -124,10 +124,9 @@ let maxState = 100;  # For systems where 100 = open
 
 ## License
 
-This project is licensed under the MIT License - see the LICENSE file for details.
+MIT License - Feel free to use and modify as needed.
 
 ## Acknowledgments
 
-- Inspired by common window shutter/blind designs
 - Built using the flexible [button-card](https://github.com/custom-cards/button-card) component
 - Thanks to the Home Assistant community for inspiration and support
