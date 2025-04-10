@@ -94,7 +94,7 @@ triggers_update:
 custom_fields:
   svg_component: |
     [[[ 
-      let entity_id = 'sensor.victron_system_battery_soc';
+      let entity_id = 'sensor.battery_soc';
 
       return `
         <div style="width: 100%; padding: 5px; position: relative;">
