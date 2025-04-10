@@ -2,6 +2,12 @@
 
 A collection of custom SVG-based components for Home Assistant that provide visual representations of various home systems and sensors.
 
+<img width="164" alt="battery" src="https://github.com/user-attachments/assets/39d9ecf2-e4d1-489b-bfd4-9d31385f57c8" />
+
+<img width="164" alt="thermo" src="https://github.com/user-attachments/assets/fb45f5fb-5e08-427e-98ad-e6db734fe7c6" />
+
+<img width="165" alt="shutter" src="https://github.com/user-attachments/assets/ebae5aca-897a-439d-8c0d-3c40426dc549" />
+
 <img width="164" alt="mppt" src="https://github.com/user-attachments/assets/933a4da7-caef-4c39-8f0e-bd335ba9a403" />
 
 ## Overview
