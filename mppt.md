@@ -25,43 +25,9 @@ This card creates a visual representation of your Victron MPPT solar charge cont
 
 2. Go to your dashboard, enter edit mode, and add a new card.
 
-3. Choose "Manual" card and paste the YAML configuration from the example provided.
+3. Choose "Manual" card and paste the YAML configuration from mppt.yaml.
 
 4. Replace the entity IDs with those from your Victron system.
-
-## Configuration
-
-### Basic Example
-
-Here's the basic YAML configuration for the card:
-
-```yaml
-type: custom:button-card
-entity: sensor.mppt_yield_today
-show_name: false
-show_icon: false
-triggers_update:
-  - sensor.mppt_yield_today
-  - sensor.mppt_state
-  - binary_sensor.mppt_bms
-  - binary_sensor.mppt_ve_can
-  - sensor.mppt_power
-  - sensor.mppt_current
-custom_fields:
-  mppt_controller: |
-    [[[ 
-      // Configuration and SVG code...
-    ]]]
-styles:
-  card:
-    - position: relative
-    - display: block
-    - width: 100%
-```
-
-### Full Configuration
-
-The full configuration includes extensive customization options within the code. Copy the entire YAML from the repository and replace the entity IDs with your own Victron MPPT sensors.
 
 ## Entity Requirements
 
