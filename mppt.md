@@ -102,7 +102,7 @@ You can add custom actions to different parts of the visualization:
 
 ## License
 
-This project is licensed under the MIT License - see the LICENSE file for details.
+MIT License - Feel free to use and modify as needed.
 
 ## Acknowledgments
 
