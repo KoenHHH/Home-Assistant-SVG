@@ -1,0 +1,141 @@
+type: custom:button-card
+entity: sensor.multiplus_name
+show_name: false
+show_icon: false
+tap_action:
+  action: navigate
+  navigation_path: ""
+triggers_update:
+  - sensor.multiplus_name
+  - sensor.led_bulk
+  - sensor.led_absorption
+  - sensor.led_float
+  - sensor.led_mains
+  - sensor.led_inverter
+  - sensor.led_low_battery
+  - sensor.led_overload
+  - sensor.led_temperature
+custom_fields:
+  multiplus: |
+    [[[
+      // Get the device name from the entity or use a default name
+      let entityName = states['sensor.multiplus_name']?.attributes?.friendly_name || 'Multiplus';
+
+      // Get all LED states from sensors - Parse as integers with fallback to 0
+      // LED states: 0 = off, 1 = on, 2 = blinking
+      let led_mains = parseInt(states['sensor.led_mains']?.state || 0);
+      let led_bulk = parseInt(states['sensor.led_bulk']?.state || 0);
+      let led_absorption = parseInt(states['sensor.led_absorption']?.state || 0);
+      let led_float = parseInt(states['sensor.led_float']?.state || 0);
+      let led_inverter = parseInt(states['sensor.led_inverter']?.state || 0);
+      let led_overload = parseInt(states['sensor.led_overload']?.state || 0);
+      let led_low_battery = parseInt(states['sensor.led_low_battery']?.state || 0);
+      let led_temperature = parseInt(states['sensor.led_temperature']?.state || 0);
+      
+      // Layout configuration
+      let widthSVG = '100%';
+      let heightSVG = 'auto';
+      let paddingDIV = '5px';
+      
+      // Text styling
+      let fontSizeName = '30px';
+      let fontWeight = 'bold';
+      let textTransform = 'uppercase';
+      
+      // Helper functions to determine LED colors and blinking state
+      // Animated blink class is applied if LED state is flashing (value 2)
+      let getGreenLED = (val) => {
+        if (val === 2) return { color: '#4caf50', blink: true };
+        if (val === 1) return { color: '#4caf50', blink: false };
+        return { color: '#333', blink: false };
+      };
+
+      let getYellowLED = (val) => {
+        if (val === 2) return { color: '#ffeb3b', blink: true };
+        if (val === 1) return { color: '#ffeb3b', blink: false };
+        return { color: '#333', blink: false };
+      };
+
+      let getRedLED = (val) => {
+        if (val === 2) return { color: '#f44336', blink: true };
+        if (val === 1) return { color: '#f44336', blink: false };
+        return { color: '#333', blink: false };
+      };
+
+      // Process all LED states into an object with color and blink properties
+      const leds = {
+        mains: getGreenLED(led_mains),
+        bulk: getYellowLED(led_bulk),
+        absorption: getYellowLED(led_absorption),
+        float: getYellowLED(led_float),
+        inverter: getGreenLED(led_inverter),
+        overload: getRedLED(led_overload),
+        lowBattery: getRedLED(led_low_battery),
+        temperature: getRedLED(led_temperature),
+      };
+
+      // Generate and return the SVG representation of the MultiPlus
+      return `
+        <div style="width: 100%; padding: ${paddingDIV}; position: relative;">
+          <style>
+            .blink {
+              animation: blink-animation 1s steps(2, start) infinite;
+            }
+            @keyframes blink-animation {
+              to { visibility: hidden; }
+            }
+            .text {
+                text-transform: ${textTransform};
+              }
+          </style>
+          <svg width="${widthSVG};" height="${heightSVG}" viewBox="0 0 300 240" xmlns="http://www.w3.org/2000/svg">
+            <!-- Main device body -->
+            <rect x="20" y="20" width="240" height="220" rx="10" ry="10" fill="#2a7ab9" />
+            
+            <!-- Device name text -->
+            <text class="text" x="140" y="70" text-anchor="middle" font-size="${fontSizeName}" fill="white" font-weight="${fontWeight}">
+              ${entityName.length > 20 ? entityName.substring(0, 20) : entityName}
+            </text>
+            
+            <!-- Orange label bar -->
+            <rect x="40" y="80" width="200" height="25" rx="3" ry="3" fill="#e95e16" />
+            
+            <!-- Section labels -->
+            <text class="text" x="75" y="135" text-anchor="middle" font-size="22" fill="white" font-weight="${fontWeight}">Charger</text>
+            <text class="text" x="190" y="135" text-anchor="middle" font-size="22" fill="white" font-weight="${fontWeight}">Inverter</text>
+
+            <!-- Charger LEDs -->
+            <circle cx="50" cy="150" r="6" fill="${leds.mains.color}" class="${leds.mains.blink ? 'blink' : ''}" />
+            <text class="text" x="65" y="155" font-size="16" fill="white" font-weight="${fontWeight}">Mains ON</text>
+
+            <circle cx="50" cy="170" r="6" fill="${leds.bulk.color}" class="${leds.bulk.blink ? 'blink' : ''}" />
+            <text class="text" x="65" y="175" font-size="16" fill="white" font-weight="${fontWeight}">Bulk</text>
+
+            <circle cx="50" cy="190" r="6" fill="${leds.absorption.color}" class="${leds.absorption.blink ? 'blink' : ''}" />
+            <text class="text" x="65" y="195" font-size="16" fill="white" font-weight="${fontWeight}">Absoption</text>
+
+            <circle cx="50" cy="210" r="6" fill="${leds.float.color}" class="${leds.float.blink ? 'blink' : ''}" />
+            <text class="text" x="65" y="215" font-size="16" fill="white" font-weight="${fontWeight}">Float</text>
+
+            <!-- Inverter LEDs -->
+            <circle cx="160" cy="150" r="6" fill="${leds.inverter.color}" class="${leds.inverter.blink ? 'blink' : ''}" />
+            <text class="text" x="175" y="155" font-size="16" fill="white" font-weight="${fontWeight}">Inverter ON</text>
+
+            <circle cx="160" cy="170" r="6" fill="${leds.overload.color}" class="${leds.overload.blink ? 'blink' : ''}" />
+            <text class="text" x="175" y="175" font-size="16" fill="white" font-weight="${fontWeight}">Overload</text>
+
+            <circle cx="160" cy="190" r="6" fill="${leds.lowBattery.color}" class="${leds.lowBattery.blink ? 'blink' : ''}" />
+            <text class="text" x="175" y="195" font-size="16" fill="white" font-weight="${fontWeight}">Low Battery</text>
+
+            <circle cx="160" cy="210" r="6" fill="${leds.temperature.color}" class="${leds.temperature.blink ? 'blink' : ''}" />
+            <text class="text" x="175" y="215" font-size="16" fill="white" font-weight="${fontWeight}">Temperature</text>
+
+          </svg>
+        </div>
+      `;
+    ]]]
+styles:
+  card:
+    - position: relative
+    - display: block
+    - width: 100%
