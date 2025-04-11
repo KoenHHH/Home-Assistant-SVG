@@ -84,13 +84,16 @@ custom_fields:
             </style> 
             <!-- Battery Top (the small connector piece) -->
             <rect class="top" x="135" y="30" width="20" height="10" fill="white"/>
+            
             <!-- Battery Fill (changes height based on percentage) -->
             <rect class="fill" x="125" y="${y}" width="40" height="${height}" fill="${color}"/>
+            
             <!-- Battery Outline (constant) -->
             <rect class="outline" x="125" y="40" width="40" height="80" stroke="white" fill="none" stroke-width="2"/>
             
             <!-- Battery Percentage Display -->
             <text text-anchor="middle" class="percentage" x="150" y="150" fill="${colorPercentage}" font-size="${fontSizePercentage}" font-weight="${fontWeight}">${state}%</text>
+            
             <!-- Battery Name First Line -->
             <text text-anchor="middle" class="text" x="150" y="190" fill="${colorName}" font-size="${fontSizePercentage}" font-weight="${fontWeight}">${firstWords}</text>
             
