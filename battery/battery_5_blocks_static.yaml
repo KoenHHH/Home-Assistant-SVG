@@ -27,9 +27,11 @@ custom_fields:
       let textTransform = 'uppercase';
       
       // Threshold values and colors
-      let blockHighValue = 70;   // Above this value, battery shows as green
-      let blockMiddleValue = 30; // Between high and this value, battery shows as orange
-                                // Below this value, battery shows as red
+      let blockHighValue = 80;
+      let blockSemiHighValue = 60;
+      let blockMiddleValue = 40;
+      let blockLowValue = 20;
+      
       let color_green = '#4caf50';  // Color for high battery level
       let color_orange = '#ff9800'; // Color for medium battery level
       let color_red = '#f44336';    // Color for low battery level
