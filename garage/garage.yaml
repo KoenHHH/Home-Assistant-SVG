@@ -99,13 +99,6 @@ custom_fields:
             <!-- Garage Door Cover (grows top to bottom, like the original) -->
             <rect x="125" y="${clipY}" width="50" height="${fillHeight}" fill="${colorShutter}" style="transition: height ${transitionDuration};" />
 
-            <!-- Garage Door Panels (horizontal lines) -->
-            <line x1="125" y1="50" x2="180" y2="50" stroke="white" stroke-width="1" />
-            <line x1="125" y1="60" x2="180" y2="60" stroke="white" stroke-width="1" />
-            <line x1="125" y1="70" x2="180" y2="70" stroke="white" stroke-width="1" />
-            <line x1="125" y1="80" x2="180" y2="80" stroke="white" stroke-width="1" />
-            <line x1="125" y1="90" x2="180" y2="90" stroke="white" stroke-width="1" />
-
             <text text-anchor="middle" x="150" y="150" class="data" display="${displayPercentage}" font-size="${fontSizeDegrees}" font-weight="${fontWeight}" fill="${percentageColor}">${displayState}</text>
             <text text-anchor="middle" x="150" y="190" class="data" display="${displayName1}" font-size="${fontSizeName}" font-weight="${fontWeight}" fill="${nameColor}">${firstWords}</text>
             <text text-anchor="middle" x="150" y="220" class="data" display="${displayName2}" font-size="${fontSizeName}" font-weight="${fontWeight}" fill="${nameColor}">${restOfName}</text>
