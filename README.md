@@ -24,7 +24,7 @@ Visual representation of a window with shutter. Animates when entity has a posit
 ### Water Usage Level
 Water tank level indicators and usage statistics visualization.
 
-### Thermometers
+### Thermometer
 Temperature display with visual indicators for heating/cooling status.
 
 ### VICTRON MPPT Solar Controller
