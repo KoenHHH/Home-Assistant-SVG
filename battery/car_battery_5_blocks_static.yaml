@@ -5,7 +5,7 @@ show_icon: false
 triggers_update:
   - sensor.battery_soc  # Updates when this entity changes
 custom_fields:
-  batteryCar3: |
+  batteryCar5: |
     [[[ 
       // Get current battery state of charge from the sensor (percentage)
       let state = parseInt(states['sensor.battery_soc'].state, 10);
