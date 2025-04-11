@@ -5,7 +5,7 @@ show_icon: false
 triggers_update:
   - sensor.battery_soc
 custom_fields:
-  battery1: |
+  battery3: |
     [[[ 
       // Get the current battery state of charge percentage
       let state = parseInt(states['sensor.battery_soc'].state, 10);
