@@ -29,7 +29,7 @@ A stylish, customizable temperature visualization card for Home Assistant that d
 
 4. Choose "Manual" card and paste the YAML configuration.
 
-5. Replace the entity ID with your own shutter/blind entity.
+5. Replace the entity ID with your own entity.
 
 ## Entity Requirements
 
