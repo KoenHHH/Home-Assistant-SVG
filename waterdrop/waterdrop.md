@@ -23,7 +23,7 @@ A visually appealing, customizable water consumption visualization card for Home
 
 1. Make sure you have [button-card](https://github.com/custom-cards/button-card) installed. You can install it via HACS (Home Assistant Community Store) or manually.
 
-2. Copy the contents of `shutter.yaml` to your configuration.
+2. Copy the contents of `waterdrop.yaml` to your configuration.
 
 3. Go to your dashboard, enter edit mode, and add a new card.
 
