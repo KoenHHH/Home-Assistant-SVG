@@ -3,7 +3,9 @@
 A custom button card for Home Assistant that displays window shutters or blinds with a visual representation showing the current position.
 
 <img width="125" alt="shutter" src="https://github.com/user-attachments/assets/fc9d26ed-a1c4-4c84-882f-9c680edc12e0" />
+
 ![shutter_down](https://github.com/user-attachments/assets/8391d396-c982-4f2d-a08d-d7d6ee89c02b)
+
 ![shutter_up](https://github.com/user-attachments/assets/4fb8d35c-2270-48c3-9c4b-fc381ca6840b)
 
 ## Overview
