@@ -27,9 +27,6 @@ Water tank level indicators and usage statistics visualization.
 ### Thermometers
 Temperature display with visual indicators for heating/cooling status.
 
-### Custom Switches
-Visually appealing switch controls that mimic physical switches.
-
 ### VICTRON MPPT Solar Controller
 Visual representation of a Victron MPPT solar charge controller with daily yield and charging state indicators.
 
