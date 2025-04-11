@@ -2,7 +2,10 @@
 
 A collection of custom SVG-based components for Home Assistant that provide visual representations of various home systems and sensors.
 
-![mppt](https://github.com/user-attachments/assets/57a3c052-b81e-4e5b-84b6-035603203883)
+<img width="125" alt="battery" src="https://github.com/user-attachments/assets/0f1f505c-fa34-46b5-9929-e9f7b357fdc1" />
+<img width="125" alt="thermo" src="https://github.com/user-attachments/assets/181beedf-aa3c-44b3-8ba6-453e6dde0dbd" />
+<img width="125" alt="shutter" src="https://github.com/user-attachments/assets/cbe3bfef-d186-4c15-a494-29b5defc3ded" />
+
 
 ## Overview
 
@@ -12,20 +15,28 @@ This library contains custom SVG-based cards for Home Assistant that display var
 
 The library currently includes:
 
-### MPPT Solar Controller
-Visual representation of a Victron MPPT solar charge controller with daily yield and charging state indicators.
-
 ### Battery Status
 Visual battery indicators showing charge level, charging status, and connection information.
+
+### Window Shutter
+Visual representation of a window with shutter. Animates when entity has a position attribute.
 
 ### Water Usage Level
 Water tank level indicators and usage statistics visualization.
 
+### Thermometers
+Temperature display with visual indicators for heating/cooling status.
+
 ### Custom Switches
 Visually appealing switch controls that mimic physical switches.
 
-### Thermometers
-Temperature display with visual indicators for heating/cooling status.
+### VICTRON MPPT Solar Controller
+Visual representation of a Victron MPPT solar charge controller with daily yield and charging state indicators.
+
+### VICTRON Multiplus 
+Visual representation of a Victron Multiplus LED Status.
+
+### .............
 
 ## Features
 
@@ -83,8 +94,24 @@ triggers_update:
 custom_fields:
   svg_component: |
     [[[ 
-      // JavaScript code to generate SVG based on entity states
-      // ...
+      let entity_id = 'sensor.battery_soc';
+
+      return `
+        <div style="width: 100%; padding: 5px; position: relative;">
+          <svg width="100%" height="auto" viewBox="0 0 300 240" xmlns="http://www.w3.org/2000/svg">
+            <style>
+              .text {
+                text-transform: ${textTransform};
+              }
+            </style>  
+
+            <rect x="20" y="20" width="100" height="100" rx="10" ry="10" fill="white" />
+            <circle cx="20" cy="20" r="10" fill="white" />
+            <text text-anchor="middle" class="text" x="20" y="40" fill="white" font-size="12">${entity_id}</text>
+            
+           </svg>
+         </div>
+      `;
     ]]]
 styles:
   card:

@@ -1,0 +1,109 @@
+type: custom:button-card
+entity: sensor.temperature  # Replace with your temperature sensor entity
+show_name: false
+show_icon: false
+triggers_update:
+  - sensor.temperature  # Updates when this entity changes
+custom_fields:
+  thermometer1: |
+    [[[  
+      // Get current temperature reading from the sensor
+      let state = parseFloat(states['sensor.temperature'].state, 10); 
+      let entity_id = 'sensor.temperature';  
+      
+      // Temperature range for visualization (min and max values)
+      let minState = -20;  
+      let maxState = 40;
+      
+      // Visual styling parameters
+      let divDisplay = 'flex';
+      let widthSVG = '100%';
+      let heightSVG = 'auto';
+      let paddingDIV = '0px';
+      
+      // Text styling parameters
+      let fontSizeDegrees = '50px'; 
+      let fontSizeName = '32px';
+      let fontWeight = 'bold';   
+      let textTransform = 'uppercase'; 
+      
+      // Color definitions
+      let color_green = '#4caf50';  // Medium temperature
+      let color_red = '#e60404';    // High temperature
+      let color_blue = '#2986cc';   // Low temperature
+      
+      // Temperature thresholds for color changes
+      let blockHighValue = 22;      // Above this is "hot" (red)
+      let blockMiddleValue = 10;    // Above this is "comfortable" (green), below is "cold" (blue)
+      
+      // Determine color based on temperature thresholds
+      let color = state > blockHighValue ? color_red : state > blockMiddleValue ? color_green : color_blue;   
+      let percentageColor = [color];  
+      let nameColor = 'white';  
+      
+      // Visibility controls
+      let displayName = 'visible'; 
+      let displayPercentage = 'visible';
+        
+      // Entity name formatting
+      let wordLimit = 2;   
+      let entity_name = states[entity_id].attributes?.friendly_name ||
+        entity_id.replace(/sensor\./, '').replace(/_/g, ' ');
+      
+      // Calculate the thermometer fill height based on temperature
+      let percent = ((state - minState) / (maxState - minState)) * 100;
+      percent = Math.max(0, Math.min(100, percent)); // Constrain to 0-100%
+      let maxHeight = 130;
+      let height = Math.round((percent / 100) * maxHeight);
+      let y = 175 - height;
+      
+      // Split entity name for multi-line display
+      let words = entity_name.split(" ");
+      let firstWords = words.slice(0, wordLimit).join(" ") || " ";  
+      let restOfName = words.slice(wordLimit).join(" ") || " ";
+      
+      // Return the complete SVG thermometer visualization
+      return `
+        <div style="display: ${divDisplay}; flex-direction: column; align-items: center; padding: ${paddingDIV};">
+          <svg viewBox="0 0 300 240" width="${widthSVG}" height="${heightSVG}" xmlns="http://www.w3.org/2000/svg">
+            <style>
+              .fill-rect {
+                transition: y 1s ease, height 1s ease;
+              }
+              .data {
+                text-transform: ${textTransform};
+              }
+            </style>
+            <!-- Thermometer outline -->
+            <rect x="60" y="40" width="30" height="140" rx="15" fill="transparent" stroke="white" stroke-width="3"/>     
+            
+            <!-- Thermometer liquid fill with dynamic height -->
+            <rect class="fill-rect" x="65" y="${y}" width="20" height="${height}" fill="${color}"/>
+            
+            <!-- Temperature value display -->
+            <text x="150" y="110" class="data" display="${displayPercentage}" font-size="${fontSizeDegrees}" font-weight="${fontWeight}"  fill="${percentageColor}">${state}°</text>
+            
+            <!-- Sensor name display (split across two lines) -->
+            <text x="150" y="150" class="data" display="${displayName}" font-size="${fontSizeName}" font-weight="${fontWeight}"  fill="${nameColor}">${firstWords}</text>
+            <text x="140" y="190" class="data" display="${displayName}" font-size="${fontSizeName}" font-weight="${fontWeight}" fill="${nameColor}">${restOfName}</text>
+            
+            <!-- Temperature scale marker -->
+            <text x="100" y="135" class="data" display="${displayName}" font-size="14px" font-weight="${fontWeight}" fill="${nameColor}">0</text>
+            
+            <!-- Temperature scale lines -->
+            ${[...Array(8)].map((_, i) => {
+              let yLine = 60 + i * 14;
+              return `<line x1="80" y1="${yLine}" x2="90" y2="${yLine}" stroke="white" stroke-width="1"/>`;
+            }).join('')}
+            
+            <!-- Thermometer bulb -->
+            <circle cx="75" cy="198" r="22" fill="${color}" stroke="white" stroke-width="3"/>
+          </svg> 
+        </div>
+      `;
+    ]]]
+styles:
+  card:
+    - position: relative
+    - display: block
+    - width: 100%
