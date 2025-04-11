@@ -1,0 +1,163 @@
+type: custom:button-card
+entity: sensor.battery_soc
+show_name: false
+show_icon: false
+triggers_update:
+  - sensor.battery_soc
+custom_fields:
+  battery3: |
+    [[[ 
+      // Get the current battery state of charge percentage
+      let state = parseInt(states['sensor.battery_soc'].state, 10);
+      let entity_id = 'sensor.battery_soc';
+      
+      // Layout configuration
+      let divDisplay = 'flex';
+      let widthSVG = '100%';
+      let heightSVG = 'auto';
+      let paddingDIV = '0';
+      
+      // Rotation of battery (0deg = vertical battery)
+      let rotateSVG = '0deg';
+      
+      // Text configuration
+      let fontSizePercentage = '32px';
+      let fontSizeName = '32px';
+      let fontWeight = 'bold';
+      let textTransform = 'uppercase';
+      
+      // Threshold values and colors
+      let blockHighValue = 70;   // Above this value, battery shows as green
+      let blockMiddleValue = 30; // Between high and this value, battery shows as orange
+                                // Below this value, battery shows as red
+      let color_green = '#4caf50';  // Color for high battery level
+      let color_orange = '#ff9800'; // Color for medium battery level
+      let color_red = '#f44336';    // Color for low battery level
+      
+      // Determine color based on battery percentage
+      let color = state > blockHighValue
+        ? color_green
+        : state > blockMiddleValue
+        ? color_orange
+        : color_red;
+        
+      // Additional styling options
+      let colorPercentage = [color];  // Color of the percentage text
+      let colorName = 'white';        // Color of the entity name text
+      let displayName = 'visible';    // Show/hide the entity name
+      let displayPercentage = 'visible'; // Show/hide the percentage
+      let wordLimit = 1;              // Number of words on first line
+      
+      // Calculate the height of each segment (all 3 blocks take 48px total, with 14px each)
+      const blockHeight = 25;
+      const totalBlocks = 3;
+      const totalHeight = blockHeight * totalBlocks + 4; // 3 blocks + 4px gaps between blocks (2px * 2)
+      const blockGap = 3; // Gap between blocks
+      
+      // Calculate the fill heights based on percentage
+      state = Math.max(0, Math.min(100, state));
+      const fillPercentage = state / 100;
+      const fillHeight = Math.floor(fillPercentage * (blockHeight * 3 + blockGap * 2)); // Total fill height
+      
+      // Get the friendly name of the entity or create a formatted version from the entity ID
+      let entity_name = states[entity_id].attributes?.friendly_name || 
+                        entity_id.replace(/sensor\./, '').replace(/_/g, ' ');
+      
+      // Ensure battery percentage is within 0-100 range
+      state = Math.max(0, Math.min(100, state));
+      
+      // Calculate dimensions for the battery fill visualization
+      let maxHeight = 80;  // Maximum height of battery in SVG
+      let height = Math.round((state / 100) * maxHeight);  // Height based on percentage
+      let y = 40 + (maxHeight - height);  // Y position for the fill rectangle
+      
+      // Split entity name for multi-line display
+      let words = entity_name.split(" ");
+      let firstWords = words.slice(0, wordLimit).join(" ") || "";  
+      let restOfName = words.slice(wordLimit).join(" ") || "";
+      
+      // Generate and return the SVG battery visualization
+      return `
+        <div style="display: ${divDisplay}; flex-direction: column; align-items: center; position: relative; padding: ${paddingDIV};">
+          <svg width="${widthSVG};" height="${heightSVG}" viewBox="0 0 300 240" xmlns="http://www.w3.org/2000/svg">
+            <style>
+              .percentage {
+                display: ${displayPercentage};
+              }
+              .text {
+                text-transform: ${textTransform};
+                display: ${displayName};
+              }
+              .top, .fill, .outline {
+                transform: rotate(${rotateSVG});
+                transform-origin: 50% 50%;
+              }  
+            </style> 
+            <!-- Battery Top (the small connector piece) -->
+            <rect class="top" x="135" y="30" width="20" height="10" fill="white"/>
+            
+            <!-- Battery Fill (changes dynamic not steady blocks height based on percentage) -->
+            <clipPath id="bottom-block">
+              <rect x="125" y="95" width="40" height="25" />
+            </clipPath>
+            <clipPath id="middle-block">
+              <rect x="125" y="68" width="40" height="25" />
+            </clipPath>
+            <clipPath id="top-block">
+              <rect x="125" y="41" width="40" height="25" />
+            </clipPath>
+
+            <!-- Bottom block (0-33%) -->
+            <rect 
+              x="125" 
+              y="${120 - Math.min(fillHeight, blockHeight)}" 
+              width="40" 
+              height="${Math.min(fillHeight, blockHeight)}" 
+              fill="${color}" 
+              clip-path="url(#bottom-block)"
+            />
+            
+            <!-- Middle block (34-66%) -->
+            ${fillHeight > blockHeight ? `
+              <rect 
+                x="125" 
+                y="${92 - Math.min(fillHeight - blockHeight - blockGap, blockHeight)}" 
+                width="40" 
+                height="${Math.min(fillHeight - blockHeight - blockGap, blockHeight)}" 
+                fill="${color}" 
+                clip-path="url(#middle-block)"
+              />
+            ` : ''}
+            
+            <!-- Top block (67-100%) -->
+            ${fillHeight > (blockHeight * 2 + blockGap * 2) ? `
+              <rect 
+                x="125" 
+                y="${65 - Math.min(fillHeight - (blockHeight * 2) - (blockGap * 2), blockHeight)}" 
+                width="40" 
+                height="${Math.min(fillHeight - (blockHeight * 2) - (blockGap * 2), blockHeight)}" 
+                fill="${color}" 
+                clip-path="url(#top-block)"
+              />
+            ` : ''}
+            
+            <!-- Battery Outline (constant) -->
+            <rect class="outline" x="125" y="40" width="40" height="80" stroke="white" fill="none" stroke-width="2"/>
+            
+            <!-- Battery Percentage Display -->
+            <text text-anchor="middle" class="percentage" x="150" y="150" fill="${colorPercentage}" font-size="${fontSizePercentage}" font-weight="${fontWeight}">${state}%</text>
+            
+            <!-- Battery Name First Line -->
+            <text text-anchor="middle" class="text" x="150" y="190" fill="${colorName}" font-size="${fontSizePercentage}" font-weight="${fontWeight}">${firstWords}</text>
+            
+            <!-- Battery Name Second Line (if any) -->
+            <text text-anchor="middle" class="text" x="150" y="220" fill="${colorName}" font-size="${fontSizePercentage}" font-weight="${fontWeight}">${restOfName}</text>
+          </svg>
+        </div>
+      `;
+    ]]]
+styles:
+  card:
+    - position: relative
+    - display: block
+    - width: 100%
