@@ -1,0 +1,120 @@
+type: custom:button-card
+entity: cover.garage
+show_name: false
+show_icon: false
+triggers_update:
+  - cover.garage
+custom_fields:
+  garage: |
+    [[[
+      // Get the entity ID of the shutter/blind, use state for %, use displayState for text
+      let entity_id = 'cover.garage';
+      let state = states[entity_id].attributes.current_position ?? (states[entity_id].state === 'open' ? 100 : 0); 
+      let displayState = (states[entity_id].state === 'opening' || states[entity_id].state === 'closing') ? `${states[entity_id].state}...` : states[entity_id].state;
+      
+      // Get position: either from current_position attribute, or infer from state
+      // If open = 100%, if closed = 0%
+      let minState = 100;
+      let maxState = 0;
+
+      // Layout configuration
+      let divDisplay = 'flex';
+      let widthSVG = '100%';
+      let heightSVG = 'auto';
+      let paddingDIV = '0';
+     
+      // Text configuration
+      let fontSizeDegrees = '32px';
+      let fontSizeName = '32px';
+      let fontWeight = 'bold';
+      let textTransform = 'uppercase';
+
+      // Color configuration for different states
+      let color_light = '#b3e5fc'; // Light blue for mostly open
+      let color_day = '#64b5f6'; // Medium blue for partially open
+      let color_dark = '#506587'; // Dark blue for mostly closed
+      let colorShutter = '#506587'; // Color of the shutter bars
+
+      // Threshold values for color changes
+      let blockHighValue = 70; // Above this position shows as light color
+      let blockMiddleValue = 20;    // Between high and this shows as medium color
+                                    // Below this shows as dark color
+
+      // Determine window background color based on position
+      let color = state > blockHighValue ? color_light : state > blockMiddleValue ? color_day : color_dark;
+      let percentageColor = [color];
+
+      // Additional styling options
+      let nameColor = 'white';
+      let displayName1 = 'visible';
+      let displayName2 = 'visible';
+      let displayPercentage = 'visible';
+      
+      // Split name configuration
+      let wordLimit = 1;
+      
+      // Get friendly name of entity or format entity ID
+      let entity_name = states[entity_id].attributes?.friendly_name ||
+                        entity_id.replace(/cover\./, '').replace(/_/g, ' ');
+
+      // Calculate percentage and ensure it's between 0-100
+      let percent = ((state - minState) / (maxState - minState)) * 100;
+      percent = Math.max(0, Math.min(100, percent));
+
+      // Calculate shutter fill dimensions
+      let fillHeight = Math.round((percent / 100) * 60); // max height is 60 for garage door opening
+      let clipY = 45; // starting point for fill (top of garage door)
+      let transitionDuration = "0.6s";  // Animation duration for smooth effect
+
+      // Split entity name for multi-line display
+      let words = entity_name.split(" ");
+      let firstWords = words.slice(0, wordLimit).join(" ") || " ";
+      let restOfName = words.slice(wordLimit).join(" ") || " ";
+
+      // Generate and return the SVG shutter visualization
+      return `
+        <div style="display: ${divDisplay}; flex-direction: column; align-items: center; padding: ${paddingDIV};">
+          <svg viewBox="0 0 300 240" width="${widthSVG}" height="${heightSVG}" xmlns="http://www.w3.org/2000/svg">
+            <style>
+              .fill-rect {
+                transition: y 1s ease, height 1s ease;
+              }
+              .data {
+                text-transform: ${textTransform};
+              }
+            </style> 
+            <!-- Garage Structure -->
+            <!-- Roof -->
+            <polygon points="120,42 150,20 180,42" fill="none" stroke="white" stroke-width="5" />
+            
+            <!-- Left Wall -->
+            <rect x="120" y="45" width="5" height="65" fill="white" />
+            
+            <!-- Right Wall -->
+            <rect x="175" y="45" width="5" height="65" fill="white" />
+            
+            <!-- Garage Door Opening -->
+            <rect x="125" y="45" width="50" height="60" fill="${color}" stroke="white" stroke-width="2" />
+            
+            <!-- Garage Door Cover (grows top to bottom, like the original) -->
+            <rect x="125" y="${clipY}" width="50" height="${fillHeight}" fill="${colorShutter}" style="transition: height ${transitionDuration};" />
+
+            <!-- Garage Door Panels (horizontal lines) -->
+            <line x1="125" y1="50" x2="180" y2="50" stroke="white" stroke-width="1" />
+            <line x1="125" y1="60" x2="180" y2="60" stroke="white" stroke-width="1" />
+            <line x1="125" y1="70" x2="180" y2="70" stroke="white" stroke-width="1" />
+            <line x1="125" y1="80" x2="180" y2="80" stroke="white" stroke-width="1" />
+            <line x1="125" y1="90" x2="180" y2="90" stroke="white" stroke-width="1" />
+
+            <text text-anchor="middle" x="150" y="150" class="data" display="${displayPercentage}" font-size="${fontSizeDegrees}" font-weight="${fontWeight}" fill="${percentageColor}">${displayState}</text>
+            <text text-anchor="middle" x="150" y="190" class="data" display="${displayName1}" font-size="${fontSizeName}" font-weight="${fontWeight}" fill="${nameColor}">${firstWords}</text>
+            <text text-anchor="middle" x="150" y="220" class="data" display="${displayName2}" font-size="${fontSizeName}" font-weight="${fontWeight}" fill="${nameColor}">${restOfName}</text>
+          </svg>
+        </div>
+      `;
+    ]]]
+styles:
+  card:
+    - position: relative
+    - display: block
+    - width: 100%
