@@ -1,0 +1,190 @@
+type: custom:button-card
+entity: sensor.battery_soc # Replace with your battery SoC sensor entity
+show_name: false
+show_icon: false
+triggers_update:
+  - sensor.battery_soc  # Updates when this entity changes
+custom_fields:
+  batteryCar5: |
+    [[[ 
+      // Get current battery state of charge from the sensor (percentage)
+      let state = parseInt(states['sensor.battery_soc'].state, 10);
+      let entity_id = 'sensor.battery_soc';
+      
+      // Visual styling parameters
+      let divDisplay = 'flex';
+      let widthSVG = '100%';
+      let heightSVG = 'auto';
+      let paddingDIV = '0';
+      
+      // Optional rotation of the battery icon (0deg = normal, 90deg = horizontal)
+      let rotateSVG = '0deg';
+      
+      // Text styling parameters
+      let fontSizePercentage = '32px';
+      let fontSizeName = '32px';
+      let fontWeight = 'bold';
+      let textTransform = 'uppercase';
+      
+      // Battery level thresholds for color changes
+      let blockHighValue = 80;
+      let blockSemiHighValue = 60;
+      let blockMiddleValue = 40;
+      let blockLowValue = 20;
+      
+      // Color definitions
+      let color_green = '#4caf50';   // High battery
+      let color_orange = '#ff9800';  // Medium battery
+      let color_red = '#f44336';     // Low battery
+      
+      // Determine color based on battery level thresholds
+      let color = state > blockHighValue ? color_green :
+                  state > blockSemiHighValue ? color_green :
+                  state > blockMiddleValue ? color_orange :
+                  state > blockLowValue ? color_orange : color_red;
+
+      // Calculate the height of each segment (all 3 blocks take 48px total, with 14px each)
+      const blockHeight = 9; // Height of each block
+      const totalBlocks = 5;
+      const totalHeight = blockHeight * totalBlocks; // Total height of all blocks
+      const blockGap = 3; // Gap between blocks
+      
+      // Calculate the fill heights based on percentage
+      state = Math.max(0, Math.min(100, state));
+      const fillPercentage = state / 100;
+      const fillHeight = Math.floor(fillPercentage * totalHeight); // Height based on percentage
+        
+      // Text color settings
+      let colorPercentage = [color];
+      let colorName = 'white';
+      
+      // Visibility controls
+      let displayName = 'visible';
+      let displayPercentage = 'visible';
+      
+      // Entity name formatting
+      let wordLimit = 1;
+      let entity_name = states[entity_id].attributes?.friendly_name || 
+                        entity_id.replace(/sensor\./, '').replace(/_/g, ' ');
+      
+      // Split entity name for multi-line display
+      let words = entity_name.split(" ");
+      let firstWords = words.slice(0, wordLimit).join(" ") || "";  
+      let restOfName = words.slice(wordLimit).join(" ") || "";
+      
+      // Return the complete SVG battery visualization
+      return `
+        <div style="display: ${divDisplay}; flex-direction: column; align-items: center; position: relative; padding: ${paddingDIV};">
+          <svg width="${widthSVG};" height="${heightSVG}" viewBox="0 0 300 240" xmlns="http://www.w3.org/2000/svg">
+            <style>
+              .percentage {
+                display: ${displayPercentage};
+              }
+              .text {
+                text-transform: ${textTransform};
+                display: ${displayName};
+              }
+              .top, .fill, .outline {
+                transform: rotate(${rotateSVG});
+                transform-origin: 50% 50%;
+              }  
+            </style> 
+            <!-- Battery Terminal/Connector -->
+            <rect class="top" x="120" y="40" width="20" height="10" fill="white"/>
+            <rect class="top" x="160" y="40" width="20" height="10" fill="white"/>
+            
+            <!-- Battery Fill Level (dynamic based on SoC) -->
+           <clipPath id="block1-car">
+              <rect class="fill" x="110" y="90" width="80" height="9" />
+            </clipPath>
+            <clipPath id="block2-car">
+              <rect class="fill" x="110" y="80" width="80" height="9" />
+            </clipPath>
+            <clipPath id="block3-car">
+              <rect class="fill" x="110" y="70" width="80" height="9" />
+            </clipPath>
+            <clipPath id="block4-car">
+              <rect class="fill" x="110" y="60" width="80" height="9" />
+            </clipPath>
+            <clipPath id="block5-car">
+              <rect class="fill" x="110" y="50" width="80" height="9" />
+            </clipPath>
+            
+            <!-- Block 1 (bottom, 0-20%) -->
+            <rect 
+              x="110" 
+              y="${100 - Math.min(fillHeight, blockHeight)}" 
+              width="80" 
+              height="${Math.min(fillHeight, blockHeight)}" 
+              fill="${color}" 
+              clip-path="url(#block1-car)"
+            />
+            
+            <!-- Block 2 (21-40%) -->
+            ${fillHeight > blockHeight ? `
+              <rect 
+                x="110" 
+                y="${90 - Math.min(fillHeight - blockHeight, blockHeight)}" 
+                width="80" 
+                height="${Math.min(fillHeight - blockHeight, blockHeight)}" 
+                fill="${color}" 
+                clip-path="url(#block2-car)"
+              />
+            ` : ''}
+            
+            <!-- Block 3 (41-60%) -->
+            ${fillHeight > (blockHeight * 2) ? `
+              <rect 
+                x="110" 
+                y="${80 - Math.min(fillHeight - (blockHeight * 2), blockHeight)}" 
+                width="80" 
+                height="${Math.min(fillHeight - (blockHeight * 2), blockHeight)}" 
+                fill="${color}" 
+                clip-path="url(#block3-car)"
+              />
+            ` : ''}
+            
+            <!-- Block 4 (61-80%) -->
+            ${fillHeight > (blockHeight * 3) ? `
+              <rect 
+                x="110" 
+                y="${70 - Math.min(fillHeight - (blockHeight * 3), blockHeight)}" 
+                width="80" 
+                height="${Math.min(fillHeight - (blockHeight * 3), blockHeight)}" 
+                fill="${color}" 
+                clip-path="url(#block4-car)"
+              />
+            ` : ''}
+            
+            <!-- Block 5 (top, 81-100%) -->
+            ${fillHeight > (blockHeight * 4) ? `
+              <rect 
+                x="110" 
+                y="${60 - Math.min(fillHeight - (blockHeight * 4), blockHeight)}" 
+                width="80" 
+                height="${Math.min(fillHeight - (blockHeight * 4), blockHeight)}" 
+                fill="${color}" 
+                clip-path="url(#block5-car)"
+              />
+            ` : ''}
+            
+            <!-- Battery Outline -->
+            <rect class="outline" x="110" y="50" width="80" height="50" stroke="white" fill="none" stroke-width="2"/>
+            
+            <!-- Battery Percentage Text -->
+            <text text-anchor="middle" class="percentage" x="150" y="130" fill="${colorPercentage}" font-size="${fontSizePercentage}" font-weight="${fontWeight}">${state}%</text>
+            
+            <!-- Battery Name First Line -->
+            <text text-anchor="middle" class="text" x="150" y="170" fill="${colorName}" font-size="${fontSizePercentage}" font-weight="${fontWeight}">${firstWords}</text>
+            
+            <!-- Battery Name Second Line -->
+            <text text-anchor="middle" class="text" x="150" y="200" fill="${colorName}" font-size="${fontSizePercentage}" font-weight="${fontWeight}">${restOfName}</text>
+          </svg>
+        </div>
+      `;
+    ]]]
+styles:
+  card:
+    - position: relative
+    - display: block
+    - width: 100%
