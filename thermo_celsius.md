@@ -1,4 +1,4 @@
-# Animated Thermometer Card For Home Assistant 
+# Thermometer Card For Home Assistant 
 
 A stylish, customizable temperature visualization card for Home Assistant that displays temperature readings as an animated thermometer with color-coded temperature ranges.
 
