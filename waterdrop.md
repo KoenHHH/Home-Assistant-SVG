@@ -2,7 +2,7 @@
 
 A visually appealing, customizable water consumption visualization card for Home Assistant that displays water usage readings as an animated water droplet with color-coded usage ranges.
 
-![Water Usage Card Preview](https://via.placeholder.com/600x400/1a1a1a/ffffff?text=Water+Usage+Card+Preview)
+<img width="125" alt="waterdrop" src="https://github.com/user-attachments/assets/c580cd06-c071-4666-a6c3-e9ab0665833b" />
 
 ## Features
 
