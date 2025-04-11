@@ -63,9 +63,6 @@ custom_fields:
       let entity_name = states[entity_id].attributes?.friendly_name || 
                         entity_id.replace(/sensor\./, '').replace(/_/g, ' ');
       
-      // Ensure battery percentage is within 0-100 range
-      state = Math.max(0, Math.min(100, state));
-      
       // Calculate dimensions for the battery fill visualization
       let maxHeight = 80;  // Maximum height of battery in SVG
       let height = Math.round((state / 100) * maxHeight);  // Height based on percentage
