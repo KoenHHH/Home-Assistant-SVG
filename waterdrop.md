@@ -1,4 +1,4 @@
-# Animated Water Usage Card For Home Assistant 
+# Water Usage Card For Home Assistant 
 
 A visually appealing, customizable water consumption visualization card for Home Assistant that displays water usage readings as an animated water droplet with color-coded usage ranges.
 
