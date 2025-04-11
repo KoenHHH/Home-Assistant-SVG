@@ -98,13 +98,13 @@ custom_fields:
             
             <!-- Battery Fill (changes dynamic not steady blocks height based on percentage) -->
             <clipPath id="bottom-block">
-              <rect x="125" y="95" width="40" height="25" />
+              <rect class="fill" x="125" y="95" width="40" height="25" />
             </clipPath>
             <clipPath id="middle-block">
-              <rect x="125" y="68" width="40" height="25" />
+              <rect class="fill" x="125" y="68" width="40" height="25" />
             </clipPath>
             <clipPath id="top-block">
-              <rect x="125" y="41" width="40" height="25" />
+              <rect class="fill" x="125" y="41" width="40" height="25" />
             </clipPath>
 
             <!-- Bottom block (0-33%) -->
