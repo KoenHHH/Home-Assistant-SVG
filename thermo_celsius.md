@@ -2,7 +2,7 @@
 
 A stylish, customizable temperature visualization card for Home Assistant that displays temperature readings as an animated thermometer with color-coded temperature ranges.
 
-![Thermometer Card Preview](https://via.placeholder.com/600x400/1a1a1a/ffffff?text=Thermometer+Card+Preview)
+<img width="125" alt="thermo" src="https://github.com/user-attachments/assets/e3bbea88-e8d4-4977-884b-2e2032dce88b" />
 
 ## Overview
 
