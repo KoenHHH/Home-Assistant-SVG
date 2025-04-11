@@ -25,7 +25,7 @@ This card creates a battery icon that:
 
 2. Go to your dashboard, enter edit mode, and add a new card.
 
-3. Choose "Manual" card and paste the YAML configuration from battery_1_block.yaml.
+3. Choose "Manual" card and paste the YAML configuration from `battery_1_block.yaml`.
 
 4. Replace `sensor.battery_soc` with your actual battery level sensor.
 
