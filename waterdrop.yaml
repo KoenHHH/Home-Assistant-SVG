@@ -1,0 +1,123 @@
+type: custom:button-card
+entity: sensor.water_usage_today  # Replace with your water consumption sensor entity
+show_name: false
+show_icon: false
+triggers_update:
+  - sensor.water_usage_today  # Updates when this entity changes
+custom_fields:
+  water: |
+    [[[
+      // Get current water usage reading from the sensor (in liters)
+      let state = parseFloat(states['sensor.water_usage_today'].state, 10);
+      let entity_id = 'sensor.water_usage_today';
+      
+      // Water usage range for visualization (min and max values)
+      let minState = 0;      // Minimum usage (empty droplet)
+      let maxState = 500;    // Maximum usage (full droplet)
+      
+      // Visual styling parameters
+      let divDisplay = 'flex';
+      let widthSVG = '100%';
+      let heightSVG = 'auto';
+      let paddingDIV = '0';
+      
+      // Text styling parameters
+      let fontSizeDegrees = '32px';
+      let fontSizeName = '32px';
+      let fontWeight = 'bold';
+      let textTransform = 'uppercase';
+      
+      // Color definitions
+      let color_green = '#4caf50';  // Low water usage
+      let color_red = '#e60404';    // High water usage
+      let color_blue = '#2986cc';   // Medium water usage
+      
+      // Water usage thresholds for color changes
+      let blockHighValue = 300;     // Above this is "high" (red)
+      let blockMiddleValue = 150;   // Above this is "medium" (blue), below is "low" (green)
+      
+      // Determine color based on water usage thresholds
+      let color = state > blockHighValue ? color_red : state > blockMiddleValue ? color_blue : color_green;
+      let percentageColor = [color];
+      let nameColor = 'white';
+      
+      // Visibility controls
+      let displayName = 'visible';
+      let displayPercentage = 'visible';
+      
+      // Entity name formatting
+      let wordLimit = 1;
+      
+      // Get friendly name from entity or format entity ID if not available
+      let entity_name = states[entity_id].attributes?.friendly_name ||
+                        entity_id.replace(/sensor\./, '').replace(/_/g, ' ');
+      
+      // Calculate the water droplet fill percentage based on usage
+      let percent = ((state - minState) / (maxState - minState)) * 100;
+      percent = Math.max(0, Math.min(100, percent)); // Constrain to 0-100%
+      
+      // Calculate clip path dimensions for water level animation
+      let clipHeight = Math.round((percent / 100) * 100);
+      let clipY = 100 - clipHeight;
+      
+      // Create unique ID for clip path to force redraw when values change
+      let uniqueId = 'clip' + Math.floor(Math.random() * 100000);
+      
+      // Split entity name for multi-line display
+      let words = entity_name.split(" ");
+      let firstWords = words.slice(0, wordLimit).join(" ") || " ";
+      let restOfName = words.slice(wordLimit).join(" ") || " ";
+      
+      // Return the complete SVG water droplet visualization
+      return `
+        <div style="display: ${divDisplay}; flex-direction: column; align-items: center; padding: ${paddingDIV};">
+          <svg viewBox="0 0 300 240" width="${widthSVG}" height="${heightSVG} xmlns="http://www.w3.org/2000/svg">
+            <style>
+              .fill-rect {
+                transition: y 1s ease, height 1s ease;
+              }
+              .data {
+                text-transform: ${textTransform};
+              }
+            </style>   
+            <!-- Define clip path for water level animation -->
+            <defs>
+              <clipPath id="${uniqueId}">
+                <rect x="0" y="100" width="64" height="0">
+                  <!-- Animate the water level rising/falling -->
+                  <animate attributeName="y" from="100" to="${clipY}" dur="1s" fill="freeze" />
+                  <animate attributeName="height" from="0" to="${clipHeight}" dur="1s" fill="freeze" />
+                </rect>
+              </clipPath>
+            </defs>
+            
+            <!-- Water droplet shape with fill based on usage level -->
+            <path transform="translate(110,30)" d="M32 0C32 0 5 35 5 55C5 75 20 95 32 95C44 95 59 75 59 55C59 35 32 0 32 0Z"
+                  fill="${color}" clip-path="url(#${uniqueId})" />
+                  
+            <!-- Additional water droplet shape for a fuller appearance -->
+            <path transform="translate(110,30)" d="M32,0 C32,0 2,38 2,64 A30,30 0 0,0 62,64 C62,38 32,0 32,0Z"
+                  fill="${color}" stroke="none" clip-path="url(#${uniqueId})" />
+                  
+            <!-- Water droplet outline -->
+            <path transform="translate(110,30)" d="M32,0 C32,0 2,38 2,64 A30,30 0 0,0 62,64 C62,38 32,0 32,0Z"
+                  fill="none"
+                  stroke="white"
+                  stroke-width="4" />
+          
+            <!-- Water usage value display -->
+            <text text-anchor="middle" x="140" y="160" class="data" display="${displayPercentage}" font-size="${fontSizeDegrees}" font-weight="${fontWeight}" fill="${percentageColor}">${state}L</text>
+            
+            <!-- Sensor name display (split across two lines) -->
+            <text text-anchor="middle" x="140" y="190" class="data" display="${displayName}" font-size="${fontSizeName}" font-weight="${fontWeight}" fill="${nameColor}">${firstWords}</text>
+            <text text-anchor="middle" x="140" y="220" class="data" display="${displayName}" font-size="${fontSizeName}" font-weight="${fontWeight}" fill="${nameColor}">${restOfName}</text>
+          </svg>
+          
+        </div>
+      `;
+    ]]]
+styles:
+  card:
+    - position: relative
+    - display: block
+    - width: 100%
