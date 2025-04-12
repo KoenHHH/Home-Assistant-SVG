@@ -12,6 +12,8 @@ triggers_update:
   - sensor.mppt_current
   - binary_sensor.mppt_bms
   - binary_sensor.mppt_ve_can
+  - sensor.mppt_mppoperationmode
+  - sensor.mppt_battery_voltage
 custom_fields:
 mppt_controller: |
     [[[ 
@@ -19,26 +21,11 @@ mppt_controller: |
       let yieldValue = parseFloat(states['sensor.mppt_yield_today'].state || 0);
       
       // Get entity name from the sensor
-      let entityName = states['mppt_yield_today'].attributes?.friendly_name || 
+      let entityName = states['sensor.mppt_yield_today'].attributes?.friendly_name || 
                       'sensor.mppt_yield_today'.replace(/sensor\./, '').replace(/_/g, ' ');
       
-      // Get solar charger state
-      let chargerStateValue = parseInt(states['sensor.mppt_state']?.state || 0);
-      
-      // Map state values to states
-      let stateMap = {
-        0: "Off",
-        1: "Low Power",
-        2: "Fault",
-        3: "Bulk",
-        4: "Absorption",
-        5: "Float",
-        6: "Storage",
-        7: "Equalize",
-        9: "External"
-      };
-      
-      let chargerState = stateMap[chargerStateValue] || "unknown";
+      // Get MPPT mode if available
+      let mppMode = states['sensor.mppt_mppoperationmode']?.state || '1';
       
       // Get BMS and VE CAN states
       let bmsConnected = states['binary_sensor.mppt_bms']?.state === 'on';
@@ -47,6 +34,9 @@ mppt_controller: |
       // Get Power and Amp
       let pvPower = parseFloat(states['sensor.mppt_power'].state || 0);
       let pvAmp = parseFloat(states['sensor.mppt_current'].state || 0);
+      
+      // Try to get battery voltage if available
+      let batteryVoltage = parseFloat(states['sensor.mppt_battery_voltage']?.state || 0);
 
       let widthSVG = '100%';
       let heightSVG = 'auto';
@@ -75,18 +65,62 @@ mppt_controller: |
       let blinkClass2 = '';
       let blinkClass3 = '';
       
-      // Set LED colors based on the charger state
-      if (chargerStateValue === 3) {
+      // Infer charging state based on available data
+      // This is a simplified approach that may need to be adjusted based on your system
+      
+      // Default to BULK when active, otherwise retain last state
+      let inferredChargingState = "BULK"; // Default state
+      
+      // Last known state - this would ideally be stored in a sensor or helper
+      // For now we'll use localStorage if available to persist across refreshes
+      let lastKnownState = "BULK";
+      
+      try {
+        if (window.localStorage) {
+          lastKnownState = window.localStorage.getItem('mpptLastChargingState') || "BULK";
+        }
+      } catch (e) {
+        // localStorage might not be available, ignore
+      }
+      
+      // Simple inference logic based on power and current
+      if (pvPower > 10) { // If there's significant power
+        if (pvPower > 100 && pvAmp > 5) {
+          // High power and current typically indicates BULK charging
+          inferredChargingState = "BULK";
+        } else if (pvPower > 50 && pvAmp > 2 && pvAmp < 5) {
+          // Medium power and current may indicate ABSORPTION
+          inferredChargingState = "ABSORPTION";
+        } else if (pvPower < 50 && pvAmp < 2) {
+          // Low power and current may indicate FLOAT
+          inferredChargingState = "FLOAT";
+        }
+        
+        // Save the inferred state for future reference
+        try {
+          if (window.localStorage) {
+            window.localStorage.setItem('mpptLastChargingState', inferredChargingState);
+          }
+        } catch (e) {
+          // Ignore localStorage errors
+        }
+      } else {
+        // If no significant power, use the last known state
+        inferredChargingState = lastKnownState;
+      }
+      
+      // Set LED colors based on the inferred charging state
+      if (inferredChargingState === "BULK") {
         statusColor1 = '#67abe5';
         statusColor2 = '#333';
         statusColor3 = '#333';
         blinkClass1 = 'blink';
-      } else if (chargerStateValue === 4) {
+      } else if (inferredChargingState === "ABSORPTION") {
         statusColor1 = '#333';
         statusColor2 = '#c8a54d';
         statusColor3 = '#333';
         blinkClass2 = 'blink';
-      } else if (chargerStateValue === 5) {
+      } else if (inferredChargingState === "FLOAT") {
         statusColor1 = '#333';
         statusColor2 = '#333';
         statusColor3 = '#6fb06e';
@@ -156,6 +190,9 @@ mppt_controller: |
             <!-- Power and Amp -->
             <text x="125" y="110" text-anchor="end" font-size="20" fill="white" font-weight="${fontWeight}">${pvPower} W</text>
             <text x="200" y="110" text-anchor="end" font-size="20" fill="white" font-weight="${fontWeight}">${pvAmp} A</text>
+            
+            <!-- Debug text for inferred state - you can remove this later -->
+            <text x="150" y="175" text-anchor="middle" font-size="10" fill="white">${inferredChargingState}</text>
             
           </svg>
         </div>
