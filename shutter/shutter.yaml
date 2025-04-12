@@ -10,7 +10,7 @@ custom_fields:
       // Get the entity ID of the shutter/blind
       let entity_id = 'cover.shutter';
       
-      Get the entity ID of the shutter/blind, use state for %, use displayState for text
+      // Get the entity ID of the shutter/blind, use state for %, use displayState for text
       // If open = 100%, if closed = 0%
       let state = states[entity_id].attributes.current_position ?? (states[entity_id].state === 'open' ? 100 : 0);
       let displayState = (states[entity_id].state === 'opening' || states[entity_id].state === 'closing') ? `${states[entity_id].state}...` : states[entity_id].state;
