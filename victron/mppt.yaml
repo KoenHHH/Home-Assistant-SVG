@@ -58,25 +58,39 @@ mppt_controller: |
       let statusColor2 = '#333';   
       let statusColor3 = '#333';
       
+      // Logic for blinking indicators based on connection state
+      let blinkClass1 = '';
+      let blinkClass2 = '';
+      let blinkClass3 = '';
+      
       // Logic for status indicators based on connection state
       if (connectionState === 'BULK') {
         statusColor1 = '#67abe5';
         statusColor2 = '#333';
         statusColor3 = '#333';
+        blinkClass1 = 'blink';
       } else if (connectionState === 'ABSORPTION') {
         statusColor1 = '#333';
         statusColor2 = '#c8a54d';
         statusColor3 = '#333';
+        blinkClass2 = 'blink';
       } else if (connectionState === 'FLOAT') {
         statusColor1 = '#333';
         statusColor2 = '#333';
         statusColor3 = '#6fb06e';
+        blinkClass3 = 'blink';
       }
       
       return `
         <div style="width: 100%; padding: ${paddingDIV}; position: relative;">
           <svg width="${widthSVG};" height="${heightSVG}" viewBox="0 0 300 240" xmlns="http://www.w3.org/2000/svg">
             <style>
+              .blink {
+              animation: blink-animation 3s steps(2, start) infinite;
+              }
+              @keyframes blink-animation {
+                to { visibility: hidden; }
+              }
               .text {
                 text-transform: ${textTransform};
               }
@@ -120,11 +134,11 @@ mppt_controller: |
             <text class="text" x="170" y="210" text-anchor="middle" font-size="14" fill="white" font-weight="${fontWeight}">+</text>
             
             <!-- Status indicators -->
-            <circle cx="210" cy="200" r="6" fill="${statusColor1}" />
+            <circle class="${blinkClass1}" cx="210" cy="200" r="6" fill="${statusColor1}" />
             <text class="text" x="265" y="172" text-anchor="middle" font-size="14" fill="white" font-weight="${fontWeight}" transform="rotate(270, 242, 200)">Bulk</text>
-            <circle cx="226" cy="200" r="6" fill="${statusColor2}" />
+            <circle class="${blinkClass2}" cx="226" cy="200" r="6" fill="${statusColor2}" />
             <text class="text" x="280" y="190" text-anchor="middle" font-size="14" fill="white" font-weight="${fontWeight}" transform="rotate(270, 242, 200)">Absorption</text>
-            <circle cx="242" cy="200" r="6" fill="${statusColor3}" />
+            <circle class="${blinkClass3}" cx="242" cy="200" r="6" fill="${statusColor3}" />
             <text class="text" x="265" y="205" text-anchor="middle" font-size="14" fill="white" font-weight="${fontWeight}" transform="rotate(270, 242, 200)">Float</text>
 
             <!-- Power and Amp -->
