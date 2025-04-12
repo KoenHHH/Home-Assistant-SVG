@@ -19,11 +19,26 @@ mppt_controller: |
       let yieldValue = parseFloat(states['sensor.mppt_yield_today'].state || 0);
       
       // Get entity name from the sensor
-      let entityName = states['sensor.mppt_yield_today'].attributes?.friendly_name || 
+      let entityName = states['mppt_yield_today'].attributes?.friendly_name || 
                       'sensor.mppt_yield_today'.replace(/sensor\./, '').replace(/_/g, ' ');
       
-      // Get connection state
-      let connectionState = states['sensor.mppt_state']?.state || 'unknown';
+      // Get solar charger state
+      let chargerStateValue = parseInt(states['sensor.mppt_state']?.state || 0);
+      
+      // Map state values to states
+      let stateMap = {
+        0: "Off",
+        1: "Low Power",
+        2: "Fault",
+        3: "Bulk",
+        4: "Absorption",
+        5: "Float",
+        6: "Storage",
+        7: "Equalize",
+        9: "External"
+      };
+      
+      let chargerState = stateMap[chargerStateValue] || "unknown";
       
       // Get BMS and VE CAN states
       let bmsConnected = states['binary_sensor.mppt_bms']?.state === 'on';
@@ -33,12 +48,10 @@ mppt_controller: |
       let pvPower = parseFloat(states['sensor.mppt_power'].state || 0);
       let pvAmp = parseFloat(states['sensor.mppt_current'].state || 0);
 
-      // Size
       let widthSVG = '100%';
       let heightSVG = 'auto';
       let paddingDIV = '5px';
 
-      // Fonts
       let fontSizeName = '35px';
       let fontWeight = 'bold';
       let textTransform = 'uppercase';
@@ -58,23 +71,22 @@ mppt_controller: |
       let statusColor2 = '#333';   
       let statusColor3 = '#333';
       
-      // Logic for blinking indicators based on connection state
       let blinkClass1 = '';
       let blinkClass2 = '';
       let blinkClass3 = '';
       
-      // Logic for status indicators based on connection state
-      if (connectionState === 'BULK') {
+      // Set LED colors based on the charger state
+      if (chargerStateValue === 3) {
         statusColor1 = '#67abe5';
         statusColor2 = '#333';
         statusColor3 = '#333';
         blinkClass1 = 'blink';
-      } else if (connectionState === 'ABSORPTION') {
+      } else if (chargerStateValue === 4) {
         statusColor1 = '#333';
         statusColor2 = '#c8a54d';
         statusColor3 = '#333';
         blinkClass2 = 'blink';
-      } else if (connectionState === 'FLOAT') {
+      } else if (chargerStateValue === 5) {
         statusColor1 = '#333';
         statusColor2 = '#333';
         statusColor3 = '#6fb06e';
@@ -85,12 +97,12 @@ mppt_controller: |
         <div style="width: 100%; padding: ${paddingDIV}; position: relative;">
           <svg width="${widthSVG};" height="${heightSVG}" viewBox="0 0 300 240" xmlns="http://www.w3.org/2000/svg">
             <style>
-              .blink {
+            .blink {
               animation: blink-animation 3s steps(2, start) infinite;
-              }
-              @keyframes blink-animation {
-                to { visibility: hidden; }
-              }
+            }
+            @keyframes blink-animation {
+              to { visibility: hidden; }
+            }
               .text {
                 text-transform: ${textTransform};
               }
