@@ -65,48 +65,16 @@ mppt_controller: |
       let blinkClass2 = '';
       let blinkClass3 = '';
       
-      // Infer charging state based on available data
-      // This is a simplified approach that may need to be adjusted based on your system
-      
-      // Default to BULK when active, otherwise retain last state
+      // Infer charging state based on battery voltage - always active regardless of PV power/current
       let inferredChargingState = "BULK"; // Default state
       
-      // Last known state - this would ideally be stored in a sensor or helper
-      // For now we'll use localStorage if available to persist across refreshes
-      let lastKnownState = "BULK";
-      
-      try {
-        if (window.localStorage) {
-          lastKnownState = window.localStorage.getItem('mpptLastChargingState') || "BULK";
-        }
-      } catch (e) {
-        // localStorage might not be available, ignore
-      }
-      
-      // Simple inference logic based on power and current
-      if (pvPower > 10) { // If there's significant power
-        if (pvPower > 100 && pvAmp > 5) {
-          // High power and current typically indicates BULK charging
-          inferredChargingState = "BULK";
-        } else if (pvPower > 50 && pvAmp > 2 && pvAmp < 5) {
-          // Medium power and current may indicate ABSORPTION
-          inferredChargingState = "ABSORPTION";
-        } else if (pvPower < 50 && pvAmp < 2) {
-          // Low power and current may indicate FLOAT
-          inferredChargingState = "FLOAT";
-        }
-        
-        // Save the inferred state for future reference
-        try {
-          if (window.localStorage) {
-            window.localStorage.setItem('mpptLastChargingState', inferredChargingState);
-          }
-        } catch (e) {
-          // Ignore localStorage errors
-        }
-      } else {
-        // If no significant power, use the last known state
-        inferredChargingState = lastKnownState;
+      // Simple logic based on Battery Voltage
+      if (batteryVoltage > 48 && batteryVoltage < 52) {
+        inferredChargingState = "BULK";
+      } else if (batteryVoltage >= 52) {
+        inferredChargingState = "ABSORPTION";
+      } else if (batteryVoltage <= 48) {
+        inferredChargingState = "FLOAT";
       }
       
       // Set LED colors based on the inferred charging state
@@ -190,9 +158,6 @@ mppt_controller: |
             <!-- Power and Amp -->
             <text x="125" y="110" text-anchor="end" font-size="20" fill="white" font-weight="${fontWeight}">${pvPower} W</text>
             <text x="200" y="110" text-anchor="end" font-size="20" fill="white" font-weight="${fontWeight}">${pvAmp} A</text>
-            
-            <!-- Debug text for inferred state - you can remove this later -->
-            <text x="150" y="175" text-anchor="middle" font-size="10" fill="white">${inferredChargingState}</text>
             
           </svg>
         </div>
