@@ -75,7 +75,7 @@ custom_fields:
       // Return the complete SVG battery visualization
       return `
         <div style="display: ${divDisplay}; flex-direction: column; align-items: center; position: relative; padding: ${paddingDIV};">
-          <svg width="${widthSVG};" height="${heightSVG}" viewBox="0 0 300 240" xmlns="http://www.w3.org/2000/svg">
+          <svg width="${widthSVG}" height="${heightSVG}" viewBox="0 0 300 240" xmlns="http://www.w3.org/2000/svg">
             <style>
               .percentage {
                 display: ${displayPercentage};
