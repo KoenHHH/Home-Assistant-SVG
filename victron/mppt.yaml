@@ -132,7 +132,7 @@ mppt_controller: |
           <svg width="${widthSVG};" height="${heightSVG}" viewBox="0 0 300 240" xmlns="http://www.w3.org/2000/svg">
             <style>
             .blink {
-              animation: blink-animation 3s steps(2, start) infinite;
+              animation: blink-animation 1s steps(2, start) infinite;
             }
             @keyframes blink-animation {
               to { visibility: hidden; }
