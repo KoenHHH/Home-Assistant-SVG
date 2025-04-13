@@ -2,7 +2,7 @@
 
 A custom button card for Home Assistant that displays motion sensors with a visually appealing 3D representation that changes appearance based on motion detection state.
 
-![motion](https://github.com/user-attachments/assets/a75d514f-5638-4ca4-af84-ed7d8dd5b600)
+![motion](https://github.com/user-attachments/assets/332c1079-e13a-48ce-a39e-088c95f71122)
 
 ## Overview
 
