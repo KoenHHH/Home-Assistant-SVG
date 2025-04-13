@@ -93,7 +93,7 @@ mppt_controller: |
       
       return `
         <div style="width: 100%; padding: ${paddingDIV}; position: relative;">
-          <svg width="${widthSVG};" height="${heightSVG}" viewBox="0 0 300 240" xmlns="http://www.w3.org/2000/svg">
+          <svg width="${widthSVG}" height="${heightSVG}" viewBox="0 0 300 240" xmlns="http://www.w3.org/2000/svg">
             <style>
             .blink {
               animation: blink-animation 1s steps(2, start) infinite;
