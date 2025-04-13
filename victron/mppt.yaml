@@ -12,7 +12,6 @@ triggers_update:
   - sensor.mppt_current
   - binary_sensor.mppt_bms
   - binary_sensor.mppt_ve_can
-  - sensor.mppt_mppoperationmode
   - sensor.mppt_battery_voltage
 custom_fields:
 mppt_controller: |
@@ -23,9 +22,6 @@ mppt_controller: |
       // Get entity name from the sensor
       let entityName = states['sensor.mppt_yield_today'].attributes?.friendly_name || 
                       'sensor.mppt_yield_today'.replace(/sensor\./, '').replace(/_/g, ' ');
-      
-      // Get MPPT mode if available
-      let mppMode = states['sensor.mppt_mppoperationmode']?.state || '1';
       
       // Get BMS and VE CAN states
       let bmsConnected = states['binary_sensor.mppt_bms']?.state === 'on';
