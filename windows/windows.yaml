@@ -14,19 +14,19 @@ custom_fields:
       let state = states[entity_id].state;
       let isOpen = (state === 'on' || state === 'open');
       
-      // Layout configuration - matching shutter SVG
+      // Layout configuration
       let divDisplay = 'flex';
       let widthSVG = '100%';
       let heightSVG = 'auto';
       let paddingDIV = '0';
      
-      // Text configuration - matching shutter SVG
+      // Text configuration
       let fontSizeDegrees = '32px';
       let fontSizeName = '32px';
       let fontWeight = 'bold';
       let textTransform = 'uppercase';
       
-      // Color configuration - matching shutter SVG colors
+      // Color configuration
       let color_open = '#506587';      // Color for open window
       let color_closed = 'none';       // Color for closed window
       let colorFrame = 'white';        // Color of the window frame
