@@ -1,0 +1,123 @@
+type: custom:button-card
+entity: binary_sensor.window_sensor_contact
+show_name: false
+show_icon: false
+triggers_update:
+  - binary_sensor.window_sensor_contact
+custom_fields:
+  window: |
+    [[[
+      // Get the entity ID of the window sensor
+      let entity_id = binary_sensor.window_sensor_contact;
+      
+      // Get the current state (on/off or open/closed)
+      let state = states[entity_id].state;
+      let isOpen = (state === 'on' || state === 'open');
+      
+      // Layout configuration - matching shutter SVG
+      let divDisplay = 'flex';
+      let widthSVG = '100%';
+      let heightSVG = 'auto';
+      let paddingDIV = '0';
+     
+      // Text configuration - matching shutter SVG
+      let fontSizeDegrees = '32px';
+      let fontSizeName = '32px';
+      let fontWeight = 'bold';
+      let textTransform = 'uppercase';
+      
+      // Color configuration - matching shutter SVG colors
+      let color_open = '#506587';      // Color for open window
+      let color_closed = 'none';       // Color for closed window
+      let colorFrame = 'white';        // Color of the window frame
+      let windowColor = '#b3e5fc';     // Color of the inside of the window
+      
+      // Determine window background color based on state
+      let windowPaneColor = isOpen ? color_open : color_closed;
+      let stateText = isOpen ? 'OPEN' : 'CLOSED';
+      
+      // Additional styling options
+      let nameColor = 'white';             // Color of entity name
+      let displayName1 = 'visible';        // Show/hide first part of name
+      let displayName2 = 'visible';        // Show/hide second part of name
+      let displayState = 'visible';        // Show/hide state
+
+      // Split name configuration
+      let wordLimit = 2;  // Number of words on first line
+
+      // Get friendly name of entity or format entity ID
+      let entity_name = states[entity_id].attributes?.friendly_name ||
+                        entity_id.replace(/binary_sensor\./, '')
+                                .replace(/_contact$/, '')
+                                .replace(/_/g, ' ');
+
+      // Split entity name for multi-line display
+      let words = entity_name.split(" ");
+      let firstWords = words.slice(0, wordLimit).join(" ") || " ";
+      let restOfName = words.slice(wordLimit).join(" ") || " ";
+
+      // Calculate animation properties for open window
+      let leftWindowRotation = isOpen ? 'transform: rotateY(-45deg); transform-origin: left;' : '';
+      let rightWindowRotation = isOpen ? 'transform: rotateY(45deg); transform-origin: right;' : '';
+      let transitionDuration = "0.6s";  // Animation duration for smooth effect - matching shutter
+
+      // Generate and return the SVG window visualization - Using exact layout from shutter SVG
+      return `
+        <div style="display: ${divDisplay}; flex-direction: column; align-items: center; padding: ${paddingDIV};">
+          <svg viewBox="0 0 300 240" width="${widthSVG}" height="${heightSVG}" xmlns="http://www.w3.org/2000/svg">
+            <style>
+              .window-pane {
+                transition: all ${transitionDuration} ease;
+              }
+              .data {
+                text-transform: ${textTransform};
+              }
+            </style>   
+            
+            <!-- Top bar (matching shutter mounting bar) -->
+            <rect x="100" y="10" width="94" height="8" rx="4" ry="4" fill="white" />
+            
+            <!-- Window outline shadow (matching shutter dimensions) -->
+            <rect x="120" y="15" width="54" height="90" fill="none" stroke="white" stroke-width="5" opacity="0.7" />
+            
+            <!-- Window frame (matching shutter dimensions) -->
+            <rect x="120" y="15" width="54" height="90" fill="${windowColor}" stroke="white" stroke-width="7" />
+           
+            <!-- Window (matching shutter dimensions) -->
+            <g style="${leftWindowRotation}">
+              <rect x="120" y="15" width="54" height="90" fill="${windowPaneColor}" stroke="white" stroke-width="7" />
+              
+              <!-- Window grid lines (matching shutter grid) -->
+              <line x1="148" y1="10" x2="148" y2="105" stroke="white" stroke-width="1" />
+              <line x1="120" y1="40" x2="175" y2="40" stroke="white" stroke-width="1" />
+              <line x1="120" y1="65" x2="175" y2="65" stroke="white" stroke-width="1" />
+              <line x1="120" y1="90" x2="175" y2="90" stroke="white" stroke-width="1" />
+            </g>
+
+            <g style="${rightWindowRotation}">
+              <rect x="120" y="15" width="54" height="90" fill="${windowPaneColor}" stroke="white" stroke-width="7" />
+              
+              <!-- Window grid lines (matching shutter grid) -->
+              <line x1="148" y1="10" x2="148" y2="105" stroke="white" stroke-width="1" />
+              <line x1="120" y1="40" x2="175" y2="40" stroke="white" stroke-width="1" />
+              <line x1="120" y1="65" x2="175" y2="65" stroke="white" stroke-width="1" />
+              <line x1="120" y1="90" x2="175" y2="90" stroke="white" stroke-width="1" />
+            </g>
+            
+            <!-- State display -->
+            <text text-anchor="middle" x="150" y="150" class="data" display="${displayState}" font-size="${fontSizeDegrees}" font-weight="${fontWeight}" fill="${windowColor}">${stateText}</text>
+            
+            <!-- Entity name - first line -->
+            <text text-anchor="middle" x="150" y="190" class="data" display="${displayName1}" font-size="${fontSizeName}" font-weight="${fontWeight}" fill="${nameColor}">${firstWords}</text>
+            
+            <!-- Entity name - second line -->
+            <text text-anchor="middle" x="150" y="220" class="data" display="${displayName2}" font-size="${fontSizeName}" font-weight="${fontWeight}" fill="${nameColor}">${restOfName}</text>
+          </svg>
+        </div>
+      `;
+    ]]]
+styles:
+  card:
+    - position: relative
+    - display: block
+    - width: 100%
