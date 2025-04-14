@@ -12,7 +12,8 @@ triggers_update:
   - sensor.mppt_current
   - binary_sensor.mppt_bms
   - binary_sensor.mppt_ve_can
-  - sensor.mppt_battery_voltage
+  - sensor.battery_voltage
+  - sensor.battery_current
 custom_fields:
 mppt_controller: |
     [[[ 
@@ -31,8 +32,9 @@ mppt_controller: |
       let pvPower = parseFloat(states['sensor.mppt_power'].state || 0);
       let pvAmp = parseFloat(states['sensor.mppt_current'].state || 0);
       
-      // Try to get battery voltage if available
-      let batteryVoltage = parseFloat(states['sensor.mppt_battery_voltage']?.state || 0);
+      // Get battery voltage & current
+      let batteryVoltage = parseFloat(states['sensor.battery_voltage']?.state || 0);
+      let batteryCurrent = parseFloat(states['sensor.battery_current'].state || 0);
 
       let widthSVG = '100%';
       let heightSVG = 'auto';
@@ -64,10 +66,10 @@ mppt_controller: |
       // Infer charging state based on battery voltage - always active regardless of PV power/current
       let inferredChargingState = "BULK"; // Default state
       
-      // Simple logic based on Battery Voltage
-      if (batteryVoltage > 48 && batteryVoltage < 52) {
+      // Simple logic based on Battery Voltage & Current, change these values according to your system
+      if (batteryVoltage > 48 && batteryVoltage < 52.3 && batteryCurrent > 10) {
         inferredChargingState = "BULK";
-      } else if (batteryVoltage >= 52) {
+      } else if (batteryVoltage >= 52 && batteryCurrent < 10) {
         inferredChargingState = "ABSORPTION";
       } else if (batteryVoltage <= 48) {
         inferredChargingState = "FLOAT";
