@@ -8,7 +8,7 @@ custom_fields:
   window: |
     [[[
       // Get the entity ID of the window sensor
-      let entity_id = binary_sensor.window_sensor_contact;
+      let entity_id = 'binary_sensor.window_sensor_contact';
       
       // Get the current state (on/off or open/closed)
       let state = states[entity_id].state;
