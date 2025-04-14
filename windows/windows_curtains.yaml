@@ -1,0 +1,114 @@
+type: custom:button-card
+entity: binary_sensor.window_sensor_contact
+show_name: false
+show_icon: false
+triggers_update:
+  - binary_sensor.window_sensor_contact
+custom_fields:
+  window: |
+    [[[
+      // Get the entity ID of the window sensor
+      let entity_id = 'binary_sensor.window_sensor_contact';
+      
+      // Get the current state (on/off or open/closed)
+      let state = states[entity_id].state;
+      let isOpen = (state === 'on' || state === 'open');
+      
+      // Layout configuration
+      let divDisplay = 'flex';
+      let widthSVG = '100%';
+      let heightSVG = 'auto';
+      let paddingDIV = '0';
+     
+      // Text configuration
+      let fontSizeDegrees = '32px';
+      let fontSizeName = '32px';
+      let fontWeight = 'bold';
+      let textTransform = 'uppercase';
+      
+      // Color configuration
+      let color_open = '#506587';
+      let color_closed = '#506587';
+      let colorFrame = 'white';
+      let windowColor = '#b3e5fc';
+      
+      // Determine window background color based on state
+      let windowPaneColor = isOpen ? color_open : color_closed;
+      let stateText = isOpen ? 'OPEN' : 'CLOSED';
+      
+      // Additional styling options
+      let nameColor = 'white';
+      let displayName1 = 'visible';
+      let displayName2 = 'visible';
+      let displayState = 'visible';
+
+      // Split name configuration
+      let wordLimit = 2;  // Number of words on first line
+
+      // Get friendly name of entity or format entity ID
+      let entity_name = states[entity_id].attributes?.friendly_name ||
+                        entity_id.replace(/binary_sensor\./, '')
+                                .replace(/_contact$/, '')
+                                .replace(/_/g, ' ');
+
+      // Split entity name for multi-line display
+      let words = entity_name.split(" ");
+      let firstWords = words.slice(0, wordLimit).join(" ") || " ";
+      let restOfName = words.slice(wordLimit).join(" ") || " ";
+
+      // Calculate animation properties for open window
+      let leftWindowRotation = isOpen ? 'transform: rotateY(-30deg); transform-origin: left;' : '';
+      let rightWindowRotation = isOpen ? 'transform: rotateY(30deg); transform-origin: right;' : '';
+      let transitionDuration = "0.6s";  // Animation duration for smooth effect
+
+      // Generate and return the SVG window visualization
+      return `
+        <div style="display: ${divDisplay}; flex-direction: column; align-items: center; padding: ${paddingDIV};">
+          <svg viewBox="0 0 300 240" width="${widthSVG}" height="${heightSVG}" xmlns="http://www.w3.org/2000/svg">
+            <style>
+              .window-pane {
+                transition: all ${transitionDuration} ease;
+              }
+              .data {
+                text-transform: ${textTransform};
+              }
+            </style>   
+            
+            <!-- Top bar -->
+            <rect x="100" y="10" width="94" height="8" rx="4" ry="4" fill="white" />
+            
+            <!-- Window outline shadow -->
+            <rect x="120" y="15" width="54" height="90" fill="none" stroke="white" stroke-width="5" opacity="0.7" />
+            
+            <!-- Window frame -->
+            <rect x="120" y="15" width="54" height="90" fill="${windowColor}" stroke="white" stroke-width="7" />
+
+            <!-- Window grid lines -->
+            <line x1="148" y1="10" x2="148" y2="105" stroke="white" stroke-width="1" />
+            <line x1="120" y1="40" x2="175" y2="40" stroke="white" stroke-width="1" />
+            <line x1="120" y1="65" x2="175" y2="65" stroke="white" stroke-width="1" />
+            <line x1="120" y1="90" x2="175" y2="90" stroke="white" stroke-width="1" />
+
+            <!-- Left pane -->
+            <rect x="120" y="15" width="27" height="90" fill="${windowPaneColor}" class="window-pane" style="${leftWindowRotation}" />
+            
+            <!-- Right pane -->
+            <rect x="147" y="15" width="27" height="90" fill="${windowPaneColor}" class="window-pane" style="${rightWindowRotation}" />
+            
+            <!-- State display -->
+            <text text-anchor="middle" x="150" y="150" class="data" display="${displayState}" font-size="${fontSizeDegrees}" font-weight="${fontWeight}" fill="${windowColor}">${stateText}</text>
+            
+            <!-- Entity name - first line -->
+            <text text-anchor="middle" x="150" y="190" class="data" display="${displayName1}" font-size="${fontSizeName}" font-weight="${fontWeight}" fill="${nameColor}">${firstWords}</text>
+            
+            <!-- Entity name - second line -->
+            <text text-anchor="middle" x="150" y="220" class="data" display="${displayName2}" font-size="${fontSizeName}" font-weight="${fontWeight}" fill="${nameColor}">${restOfName}</text>
+          </svg>
+        </div>
+      `;
+    ]]]
+styles:
+  card:
+    - position: relative
+    - display: block
+    - width: 100%
