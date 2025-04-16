@@ -25,7 +25,7 @@ This card creates a visual representation of your windows that:
 
 1. Make sure you have [button-card](https://github.com/custom-cards/button-card) installed. You can install it via HACS (Home Assistant Community Store) or manually.
 
-2. Copy the contents of `window_card.yaml` to your configuration.
+2. Copy the contents of `window.yaml` to your configuration.
 
 3. Go to your dashboard, enter edit mode, and add a new card.
 
