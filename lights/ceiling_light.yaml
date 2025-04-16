@@ -1,0 +1,236 @@
+type: custom:button-card
+entity: light.your_ceiling_light # Change to your light or switch entity
+show_name: false
+show_icon: false
+triggers_update:
+  - light.your_ceiling_light # Add additional entities to monitor for updates if needed
+custom_fields:
+  light: |
+    [[[
+      // Get the entity ID (works with both light and switch entities)
+      let entity_id = 'light.your_ceiling_light'; // Change to your light or switch entity
+      let state = states[entity_id].state; // 'on' or 'off'
+      let displayState = state === 'on' ? 'on' : 'off';
+      
+      // Get brightness and color attributes from the entity
+      let attributes = states[entity_id].attributes || {};
+      let brightness = attributes.brightness || 255; // Default to max brightness
+      let brightnessPercent = Math.round((brightness / 255) * 100); // Convert to percentage
+      
+      // Get color from entity - could be rgb_color, hs_color, or xy_color
+      let color = '#ffeb3b'; // Default yellow color
+      
+      if (attributes.rgb_color) {
+        // RGB format
+        let rgb = attributes.rgb_color;
+        color = `rgb(${rgb[0]}, ${rgb[1]}, ${rgb[2]})`;
+      } else if (attributes.hs_color) {
+        // HS format (hue, saturation)
+        let hue = attributes.hs_color[0];
+        let saturation = attributes.hs_color[1];
+        // Convert HSL to RGB (simplified)
+        let h = hue / 360;
+        let s = saturation / 100;
+        let l = 1; // Fixed lightness for simplicity
+        
+        let r, g, b;
+        if (s === 0) {
+          r = g = b = l; // achromatic
+        } else {
+          const hue2rgb = (p, q, t) => {
+            if (t < 0) t += 1;
+            if (t > 1) t -= 1;
+            if (t < 1/6) return p + (q - p) * 6 * t;
+            if (t < 1/2) return q;
+            if (t < 2/3) return p + (q - p) * (2/3 - t) * 6;
+            return p;
+          };
+          
+          const q = l < 0.5 ? l * (1 + s) : l + s - l * s;
+          const p = 2 * l - q;
+          r = hue2rgb(p, q, h + 1/3);
+          g = hue2rgb(p, q, h);
+          b = hue2rgb(p, q, h - 1/3);
+        }
+        
+        color = `rgb(${Math.round(r * 255)}, ${Math.round(g * 255)}, ${Math.round(b * 255)})`;
+      } else if (attributes.color_name) {
+        // Named color
+        color = attributes.color_name;
+      }
+      
+      // Layout configuration
+      let divDisplay = 'flex';
+      let widthSVG = '100%';
+      let heightSVG = 'auto';
+      let paddingDIV = '0';
+     
+      // Text configuration
+      let fontSizeStatus = '32px';
+      let fontSizeName = '32px';
+      let fontWeight = 'bold';
+      let textTransform = 'uppercase';
+
+      // Color configuration for different states
+      let color_inactive = '#f0f0f0'; // Light gray for inactive state
+      let color_active = color;   // Use the color from the entity
+      let lightBaseColor = 'white'; // White color for the lamp body
+      
+      // Glow intensity based on brightness
+      let glowIntensity = Math.max(5, 10 * (brightnessPercent / 100));
+      
+      // Additional styling options
+      let nameColor = 'white';
+      let displayName1 = 'visible';
+      let displayName2 = 'visible';
+      let displayStatus = 'visible';
+      
+      // Split name configuration
+      let wordLimit = 1;
+      
+      // Get friendly name of entity or format entity ID
+      let entity_name = states[entity_id].attributes?.friendly_name ||
+                        entity_id.replace(/light\./, '').replace(/switch\./, '').replace(/_/g, ' ');
+
+      // Split entity name for multi-line display
+      let words = entity_name.split(" ");
+      let firstWords = words.slice(0, wordLimit).join(" ") || " ";
+      let restOfName = words.slice(wordLimit).join(" ") || " ";
+
+      // Generate and return the SVG visualization
+      return `
+        <div style="display: ${divDisplay}; flex-direction: column; align-items: center; padding: ${paddingDIV};">
+          <svg viewBox="0 0 300 240" width="${widthSVG}" height="${heightSVG}" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+              <!-- Shadow filter for lamp -->
+              <filter id="lampShadow" x="-20%" y="-20%" width="140%" height="140%">
+                <feDropShadow dx="2" dy="2" stdDeviation="3" flood-opacity="0.3" />
+              </filter>
+              
+              <!-- Glow effect for when light is on -->
+              <filter id="lightGlow" x="-50%" y="-50%" width="200%" height="200%">
+                <feGaussianBlur stdDeviation="${state === 'on' ? glowIntensity : 0}" result="blur" />
+                <feComposite in="SourceGraphic" in2="blur" operator="over" />
+              </filter>
+
+              <!-- 3D effect for the lamp shade -->
+              <filter id="shade3D" x="-50%" y="-50%" width="200%" height="200%">
+                <!-- Drop shadow for depth -->
+                <feGaussianBlur in="SourceAlpha" stdDeviation="2" result="blur" />
+                <feOffset dx="1" dy="1" result="offsetBlur" />
+                <feComponentTransfer result="shadow">
+                  <feFuncA type="linear" slope="0.4" />
+                </feComponentTransfer>
+                
+                <!-- Lighting effect from top-left for 3D -->
+                <feSpecularLighting in="blur" surfaceScale="5" specularConstant="0.8" 
+                                    specularExponent="20" lighting-color="#222222" result="specOut">
+                  <fePointLight x="50" y="20" z="100" />
+                </feSpecularLighting>
+                <feComposite in="specOut" in2="SourceAlpha" operator="in" result="specOut2" />
+                <feComposite in="SourceGraphic" in2="specOut2" operator="arithmetic" 
+                            k1="0" k2="1" k3="1" k4="0" result="litSource" />
+                
+                <!-- Combine all effects -->
+                <feMerge>
+                  <feMergeNode in="offsetBlur" />
+                  <feMergeNode in="litSource" />
+                </feMerge>
+              </filter>
+              
+              <!-- Light bulb gradients -->
+              <radialGradient id="inactiveBulbGradient" cx="0.5" cy="0.5" r="0.7" fx="0.5" fy="0.5">
+                <stop offset="0%" stop-color="#ffffff" />
+                <stop offset="70%" stop-color="${color_inactive}" />
+                <stop offset="100%" stop-color="#d0d0d0" />
+              </radialGradient>
+              
+              <radialGradient id="activeBulbGradient" cx="0.5" cy="0.5" r="0.7" fx="0.5" fy="0.5">
+                <stop offset="0%" stop-color="#fffde7" />
+                <stop offset="70%" stop-color="${color_active}" />
+                <stop offset="100%" stop-color="${color_active}" />
+              </radialGradient>
+              
+              <!-- Light cone when on -->
+              <radialGradient id="lightConeGradient" cx="0.5" cy="0" r="1" fx="0.5" fy="0">
+                <stop offset="0%" stop-color="${color_active}" stop-opacity="${brightnessPercent / 100 * 0.7}" />
+                <stop offset="50%" stop-color="${color_active}" stop-opacity="${brightnessPercent / 100 * 0.3}" />
+                <stop offset="100%" stop-color="${color_active}" stop-opacity="0" />
+              </radialGradient>
+            </defs>
+            
+            <style>
+              @keyframes glow {
+                0%, 100% { opacity: ${state === 'on' ? 0.8 : 0}; }
+                50% { opacity: ${state === 'on' ? 1 : 0}; }
+              }
+              .light-inactive {
+                fill: ${lightBaseColor};
+              }
+              .light-active {
+                fill: ${lightBaseColor};
+              }
+              .bulb-inactive {
+                fill: url(#inactiveBulbGradient);
+              }
+              .bulb-active {
+                fill: url(#activeBulbGradient);
+                animation: glow 2s ease-in-out infinite;
+                opacity: ${brightnessPercent / 100};
+              }
+              .light-cone {
+                display: none;
+              }
+              .light-cone-active {
+                display: block;
+                fill: url(#lightConeGradient);
+                animation: glow 3s ease-in-out infinite;
+                opacity: ${brightnessPercent / 100};
+              }
+              .data {
+                text-transform: ${textTransform};
+              }
+            </style> 
+            
+            <!-- Hanging Light Structure -->
+            <!-- Hanging cord from ceiling -->
+            <line x1="150" y1="0" x2="150" y2="70" stroke="${lightBaseColor}" stroke-width="4" />
+            
+            <!-- Lamp body - shade design -->
+            <path d="M150,50 L150,60 C120,60 90,90 90,120 L130,120 C130,125 170,125 170,120 L210,120 C210,90 180,60 150,60 Z" 
+                  class="${state === 'on' ? 'light-active' : 'light-inactive'}" 
+                  filter="url(#shade3D)" />
+            
+            <!-- Light bulb -->
+            <circle cx="150" cy="110" r="8" 
+                    class="${state === 'on' ? 'bulb-active' : 'bulb-inactive'}" />
+            
+            <!-- Light cone effect (only visible when on) -->
+            <path d="M120,120 L180,120 L210,170 L90,170 Z" 
+                  class="${state === 'on' ? 'light-cone-active' : 'light-cone'}" 
+                  filter="${state === 'on' ? 'url(#lightGlow)' : ''}" />
+            
+            <!-- Status text -->
+            <text text-anchor="middle" x="150" y="150" class="data" display="${displayStatus}" 
+                  font-size="${fontSizeStatus}" font-weight="${fontWeight}" fill="${nameColor}">
+              ${displayState} ${state === 'on' ? brightnessPercent + '%' : ''}
+            </text>
+
+            <!-- Entity name -->
+            <text text-anchor="middle" x="150" y="200" class="data" display="${displayName1}" 
+                  font-size="${fontSizeName}" font-weight="${fontWeight}" fill="${nameColor}">
+              ${firstWords}
+            </text>
+            <text text-anchor="middle" x="150" y="230" class="data" display="${displayName2}" 
+                  font-size="${fontSizeName}" font-weight="${fontWeight}" fill="${nameColor}">
+              ${restOfName}
+            </text>
+          </svg>
+        </div>
+      `;
+    ]]]
+styles:
+  card:
+    - position: relative
+    - display: block
+    - width: 100%
