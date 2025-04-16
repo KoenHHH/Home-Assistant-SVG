@@ -2,7 +2,9 @@
 
 A custom button card for Home Assistant that displays a visual representation of a hanging/ceiling lamp with real-time state, brightness, and color information.
 
-<img width="125" alt="ceiling_light_100" src="https://github.com/user-attachments/assets/858e88ea-bb3d-4577-918b-929c31b1d83a" />
+<img width="125" alt="ceiling_light_100_no_status" src="https://github.com/user-attachments/assets/bd55d96b-0e9f-4dff-b74a-28eee6889abd" />
+
+<img width="125" alt="ceiling_light_100" src="https://github.com/user-attachments/assets/4dc736e1-2822-48ae-9ecc-543463b0fbd9" />
 
 ## Overview
 
