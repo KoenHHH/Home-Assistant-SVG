@@ -216,7 +216,7 @@ custom_fields:
                   font-size="${fontSizeName}" font-weight="${fontWeight}" fill="${nameColor}">
               ${firstWords}
             </text>
-            <text text-anchor="middle" x="190" y="130" class="data" display="${displayName1}" 
+            <text text-anchor="middle" x="190" y="130" class="data" display="${displayName2}" 
                   font-size="${fontSizeName}" font-weight="${fontWeight}" fill="${nameColor}">
               ${restOfName}
             </text>
