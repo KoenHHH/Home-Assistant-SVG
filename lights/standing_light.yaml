@@ -200,13 +200,13 @@ custom_fields:
                   class="${state === 'on' ? 'inner-light-active' : 'inner-light-inactive'}" />
             
             <!-- Status text -->
-            <text text-anchor="middle" x="190" y="130" class="data" display="${displayStatus}" 
+            <text text-anchor="middle" x="190" y="155" class="data" display="${displayStatus}" 
                   font-size="${fontSizeStatus}" font-weight="${fontWeight}" fill="${nameColor}">
               ${displayState}
             </text>
             
             <!-- Brightness percentage (only shown when on) -->
-            <text text-anchor="middle" x="190" y="155" class="data" display="${state === 'on' ? displayBrightness : 'none'}" 
+            <text text-anchor="middle" x="190" y="180" class="data" display="${state === 'on' ? displayBrightness : 'none'}" 
                   font-size="${fontSizeDegrees}" font-weight="${fontWeight}" fill="${nameColor}">
               ${brightnessPercent}%
             </text>
@@ -215,6 +215,10 @@ custom_fields:
             <text text-anchor="middle" x="190" y="105" class="data" display="${displayName1}" 
                   font-size="${fontSizeName}" font-weight="${fontWeight}" fill="${nameColor}">
               ${firstWords}
+            </text>
+            <text text-anchor="middle" x="190" y="130" class="data" display="${displayName1}" 
+                  font-size="${fontSizeName}" font-weight="${fontWeight}" fill="${nameColor}">
+              ${restOfName}
             </text>
           </svg>
         </div>
