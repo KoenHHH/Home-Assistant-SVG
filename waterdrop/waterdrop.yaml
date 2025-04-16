@@ -20,6 +20,10 @@ custom_fields:
       let widthSVG = '100%';
       let heightSVG = 'auto';
       let paddingDIV = '0';
+
+      // move SVG
+      let translateX = '30px';
+      let translateY = '15px';
       
       // Text styling parameters
       let fontSizeDegrees = '32px';
@@ -92,15 +96,15 @@ custom_fields:
             </defs>
             
             <!-- Water droplet shape with fill based on usage level -->
-            <path transform="translate(110,30)" d="M32 0C32 0 5 35 5 55C5 75 20 95 32 95C44 95 59 75 59 55C59 35 32 0 32 0Z"
+            <path style="transform:translate(${translateX}, ${translateY})" d="M32 0C32 0 5 35 5 55C5 75 20 95 32 95C44 95 59 75 59 55C59 35 32 0 32 0Z"
                   fill="${color}" clip-path="url(#${uniqueId})" />
                   
             <!-- Additional water droplet shape for a fuller appearance -->
-            <path transform="translate(110,30)" d="M32,0 C32,0 2,38 2,64 A30,30 0 0,0 62,64 C62,38 32,0 32,0Z"
+            <path style="transform:translate(${translateX}, ${translateY})" d="M32,0 C32,0 2,38 2,64 A30,30 0 0,0 62,64 C62,38 32,0 32,0Z"
                   fill="${color}" stroke="none" clip-path="url(#${uniqueId})" />
                   
             <!-- Water droplet outline -->
-            <path transform="translate(110,30)" d="M32,0 C32,0 2,38 2,64 A30,30 0 0,0 62,64 C62,38 32,0 32,0Z"
+            <path style="transform:translate(${translateX}, ${translateY})" d="M32,0 C32,0 2,38 2,64 A30,30 0 0,0 62,64 C62,38 32,0 32,0Z"
                   fill="none"
                   stroke="white"
                   stroke-width="4" />
