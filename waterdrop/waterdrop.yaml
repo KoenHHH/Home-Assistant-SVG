@@ -22,8 +22,8 @@ custom_fields:
       let paddingDIV = '0';
 
       // move SVG
-      let translateX = '30px';
-      let translateY = '15px';
+      let translateX = '110px';
+      let translateY = '30px';
       
       // Text styling parameters
       let fontSizeDegrees = '32px';
