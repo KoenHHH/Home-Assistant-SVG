@@ -1,0 +1,224 @@
+type: custom:button-card
+entity: fan.air_purifier  # Replace with your air purifier entity
+show_name: false
+show_icon: false
+triggers_update:  # List of entities that will trigger an update of this card
+  - fan.air_purifier
+  - sensor.air_purifier_pm25
+  - sensor.air_purifier_air_quality
+custom_fields:
+  purifier: |
+    [[[
+      // Get the entity ID of the air purifier
+      let entity_id = 'fan.air_purifier';  // Replace with your air purifier entity
+      let state = states[entity_id].state;  // 'on' or 'off'
+      let displayState = state;
+      
+      // Get fan percentage and speed if available
+      let percentage = states[entity_id].attributes?.percentage || 0;
+      let fan_speed = states[entity_id].attributes?.fan_speed || 0;
+      
+      // Get PM2.5 value from dedicated sensor or from attributes
+      let pm25_sensor = 'sensor.air_purifier_pm25';  // Replace with your PM2.5 sensor if available
+      let pm25 = 0;
+      
+      if (states[pm25_sensor]) {
+        pm25 = states[pm25_sensor].state;
+      } else if (states[entity_id].attributes?.pm25) {
+        pm25 = states[entity_id].attributes.pm25;
+      }
+      
+      // Get air quality from dedicated sensor or from attributes
+      let air_quality_sensor = 'sensor.air_purifier_air_quality';  // Replace with your air quality sensor if available
+      let air_quality = 'unknown';
+      
+      if (states[air_quality_sensor]) {
+        air_quality = states[air_quality_sensor].state;
+      } else if (states[entity_id].attributes?.air_quality) {
+        air_quality = states[entity_id].attributes.air_quality;
+      }
+      
+      // Layout configuration - adjust to your preference
+      let divDisplay = 'flex';
+      let widthSVG = '100%';
+      let heightSVG = 'auto';
+      let paddingDIV = '0';
+     
+      // Text configuration - adjust font sizes as needed
+      let fontSizeName = '32px';
+      let fontSizePM25 = '40px';
+      let fontSizeAirQuality = '28px';
+      let fontWeight = 'bold';
+      let textTransform = 'uppercase';
+
+      // Color configuration
+      let purifierBaseColor = '#f5f5f5';  // Light color for the purifier body
+      let purifierBorderColor = '#333333';  // Dark color for the outline
+      let statusColor = state === 'on' ? '#4CAF50' : '#9e9e9e';  // Green when on, gray when off
+      let displayColor = '#333333';  // Color for the display area
+      
+      // PM2.5 color based on air quality
+      let pm25Color = '#4CAF50';  // Default: Green (good)
+      
+      // Set color based on air quality string or PM2.5 value ranges
+      // Adjust these thresholds according to your local air quality standards
+      if (air_quality === 'poor' || air_quality === 'very_poor' || pm25 > 50) {
+        pm25Color = '#ff0000';  // Red (very unhealthy)
+      } else if (air_quality === 'fair' || pm25 > 35) {
+        pm25Color = '#ff9900';  // Orange (unhealthy)
+      } else if (air_quality === 'moderate' || pm25 > 15) {
+        pm25Color = '#ffcc00';  // Yellow (moderate)
+      }
+      
+      // LED status based on fan_speed (Mode) or percentage
+      // Calculate speed level (1-3) based on available data
+      let speedToUse = fan_speed || Math.ceil(percentage/33);
+      let led1Color = speedToUse >= 1 ? statusColor : '#666666';
+      let led2Color = speedToUse >= 2 ? statusColor : '#666666';
+      let led3Color = speedToUse >= 3 ? statusColor : '#666666';
+      
+      // Additional styling options
+      let nameColor = 'white';
+      let displayName1 = 'visible';
+      let displayName2 = 'visible';
+      let displayStatus = 'visible';
+      let displayAirQuality = 'none';  // Change to 'visible' if you want to show air quality text
+      
+      // Split name configuration for multi-line display
+      let wordLimit = 2;
+      
+      // Get friendly name of entity or format entity ID
+      let entity_name = states[entity_id].attributes?.friendly_name ||
+                        entity_id.replace(/fan\./, '').replace(/_/g, ' ');
+
+      // Split entity name for multi-line display
+      let words = entity_name.split(" ");
+      let firstWords = words.slice(0, wordLimit).join(" ") || " ";
+      let restOfName = words.slice(wordLimit).join(" ") || " ";
+
+      // Determine if animation should be active
+      let isAnimated = state === 'on' ? 'active' : '';
+      
+      // Generate and return the SVG visualization
+      return `
+        <div style="display: ${divDisplay}; flex-direction: column; align-items: center; padding: ${paddingDIV};">
+          <svg viewBox="0 0 300 240" width="${widthSVG}" height="${heightSVG}" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+              <!-- Shadow filter for purifier -->
+              <filter id="purifierShadow" x="-20%" y="-20%" width="140%" height="140%">
+                <feDropShadow dx="2" dy="2" stdDeviation="3" flood-opacity="0.3" />
+              </filter>
+              
+              <!-- Gradient for purifier body -->
+              <linearGradient id="purifierGradient" x1="0" y1="0" x2="1" y2="1">
+                <stop offset="0%" stop-color="#ffffff" />
+                <stop offset="100%" stop-color="${purifierBaseColor}" />
+              </linearGradient>
+              
+              <!-- Gradient for display area -->
+              <linearGradient id="displayGradient" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stop-color="#444444" />
+                <stop offset="100%" stop-color="#222222" />
+              </linearGradient>
+            </defs>
+            
+            <style>
+              /* Animation for airflow lines */
+              @keyframes flowUpward {
+                0% { transform: translateY(10px); opacity: 0.3; }
+                50% { opacity: 1; }
+                100% { transform: translateY(-10px); opacity: 0.3; }
+              }
+              
+              .flow-line {
+                stroke: ${purifierBorderColor};
+                stroke-width: 1.5;
+                stroke-linecap: round;
+              }
+              
+              .flow-line.active {
+                animation: flowUpward 2s infinite;
+              }
+              
+              /* Staggered animations for more natural look */
+              .flow-line:nth-child(odd).active {
+                animation-delay: 0.5s;
+              }
+              
+              .flow-line:nth-child(3n).active {
+                animation-delay: 1s;
+              }
+              
+              .flow-line:nth-child(3n+1).active {
+                animation-delay: 1.5s;
+              }
+              
+              .data {
+                text-transform: ${textTransform};
+              }
+            </style> 
+            
+            <!-- Air Purifier Base Structure -->
+            <rect x="30" y="40" width="80" height="140" rx="5" ry="5" 
+                  fill="url(#purifierGradient)" 
+                  stroke="${purifierBorderColor}" 
+                  stroke-width="2"
+                  filter="url(#purifierShadow)" />
+            
+            <!-- Top display/control panel -->
+            <rect x="40" y="50" width="60" height="30" rx="2" ry="2"
+                  fill="url(#displayGradient)" />
+            
+            <!-- Control buttons on top (LEDs) - light up based on fan speed -->
+            <circle cx="55" cy="65" r="5" fill="${led1Color}" />
+            <circle cx="70" cy="65" r="5" fill="${led2Color}" />
+            <circle cx="85" cy="65" r="5" fill="${led3Color}" />
+            
+            <!-- Main filter area -->
+            <rect x="40" y="90" width="60" height="80" rx="2" ry="2"
+                  fill="white" stroke="#cccccc" stroke-width="1" />
+            
+            <!-- Air flow lines (animated when on) -->
+            <g>
+              <!-- Central flow lines -->
+              <path d="M50,160 C50,140 50,120 50,105" class="flow-line ${isAnimated}" />
+              <path d="M58,160 C58,140 58,120 58,105" class="flow-line ${isAnimated}" />
+              <path d="M66,160 C66,140 66,120 66,105" class="flow-line ${isAnimated}" />
+              <path d="M74,160 C74,140 74,120 74,105" class="flow-line ${isAnimated}" />
+              <path d="M82,160 C82,140 82,120 82,105" class="flow-line ${isAnimated}" />
+              <path d="M90,160 C90,140 90,120 90,105" class="flow-line ${isAnimated}" />
+            </g>
+            
+            <!-- Bottom vent -->
+            <rect x="45" y="170" width="50" height="5" rx="1" ry="1" fill="#555555" />
+            
+            <!-- PM2.5 display -->
+            <text text-anchor="middle" x="200" y="95" font-size="${fontSizePM25}" 
+                 font-weight="${fontWeight}" fill="${pm25Color}">
+              ${pm25}µg/m³
+            </text>
+            
+            <!-- Air Quality display (hidden by default) -->
+            <text text-anchor="middle" x="200" y="115" display="${displayAirQuality}" font-size="${fontSizeAirQuality}" 
+                 font-weight="${fontWeight}" fill="${pm25Color}">
+              ${air_quality}
+            </text>
+            
+            <!-- Device name display -->
+            <text text-anchor="middle" x="200" y="135" class="data" display="${displayName1}" 
+                  font-size="${fontSizeName}" font-weight="${fontWeight}" fill="${nameColor}">
+              ${firstWords}
+            </text>
+            <text text-anchor="middle" x="200" y="165" class="data" display="${displayName2}" 
+                  font-size="${fontSizeName}" font-weight="${fontWeight}" fill="${nameColor}">
+              ${restOfName}
+            </text>
+          </svg>
+        </div>
+      `;
+    ]]]
+styles:
+  card:
+    - position: relative
+    - display: block
+    - width: 100%
