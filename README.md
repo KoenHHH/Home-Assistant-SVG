@@ -3,8 +3,10 @@
 A collection of custom SVG-based components for Home Assistant that provide visual representations of various home systems and sensors.
 
 <img width="125" alt="battery" src="https://github.com/user-attachments/assets/0f1f505c-fa34-46b5-9929-e9f7b357fdc1" />
-<img width="125" alt="thermo" src="https://github.com/user-attachments/assets/181beedf-aa3c-44b3-8ba6-453e6dde0dbd" />
+<img width="125" alt="standing_light_100_green" src="https://github.com/user-attachments/assets/babf753c-22be-4ef2-bea3-84dea4240ddf" />
+<img width="125" alt="window_open" src="https://github.com/user-attachments/assets/7f8a504d-ef8e-43a8-8f95-abef27f5e16d" />
 <img width="125" alt="shutter" src="https://github.com/user-attachments/assets/cbe3bfef-d186-4c15-a494-29b5defc3ded" />
+<img width="125" alt="thermo" src="https://github.com/user-attachments/assets/181beedf-aa3c-44b3-8ba6-453e6dde0dbd" />
 
 
 ## Overview
@@ -21,17 +23,26 @@ Visual battery indicators showing charge level, charging status, and connection 
 ### Window Shutter
 Visual representation of a window with shutter. Animates when entity has a position attribute.
 
+### Window
+Visual representation of a window open and closed state. 
+
+### Lights
+Visual representation of ceiling and standing lights. Animates color and brightness 
+
+### Motion Sensor
+Motion Sensor with visual indicators for detected/not detected status.
+
 ### Water Usage Level
 Water tank level indicators and usage statistics visualization.
 
 ### Thermometer
 Temperature display with visual indicators for heating/cooling status.
 
-### VICTRON MPPT Solar Controller
-Visual representation of a Victron MPPT solar charge controller with daily yield and charging state indicators.
+### Airco/Air Purifier
+Visual representation of an air purifier with led indicators, animated airflow lines and air quality status.
 
-### VICTRON Multiplus 
-Visual representation of a Victron Multiplus LED Status.
+### Victron MPPT Solar Controller & Multiplus
+Visual representation of a Victron MPPT solar charge controller with daily yield and charging state indicators and a Multiplus with visual representation off the LED Status.
 
 ### .............
 
@@ -116,8 +127,63 @@ styles:
     - display: block
     - width: 100%
 ```
+## Advanced Usage
 
-## Creating Your Own Components
+### Combining SVGs into Custom Room Card
+
+As shown in the example image, you can combine multiple SVG components to create a unified dashboard view. This allows you to display multiple sensors and indicators in a cohesive and visually appealing layout.
+
+<img width="232" alt="advanced_room_card" src="https://github.com/user-attachments/assets/c2b54849-106f-4194-8804-487a47ac2853" />
+
+#### How to Use SVGs in Custom Dashboards
+
+You can extract the JavaScript code from inside each card's custom field and place it inside your own button card configuration. This allows you to:
+
+1. Create dashboards that combine multiple SVG components in a single view
+2. Position and scale components independently to create a custom layout
+3. Add your own styling and background elements to create a unique design
+
+The example image shows a living room card with good air quality, 13μg/m³, the purifier is working on minimum speed, the ceiling light is off, the standing light in the corner is on and on full brightness, the window and window shutter are closed (i combined the shutter and window functionality into 1 SVG and 1 custom field), the temperature is a lovely 19.8°C and humidity is around 57%. 
+
+#### WARNING: make sure you use different naming schemes when combining custom fields into your own button-card.
+
+For example (Combining the 2 lights):
+
+- They both share the same filter IDs "lightGlow".
+
+```yaml
+    <filter id="lightGlow" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="${state === 'on' ? glowIntensity : 0}" result="blur" />
+      <feComposite in="SourceGraphic" in2="blur" operator="over" />
+    </filter>
+```
+
+- Rename IDs in both custom fields, make sure they are unique from each other.
+
+```yaml
+    <filter id="ceilinglightGlow" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="${state === 'on' ? glowIntensity : 0}" result="blur" />
+      <feComposite in="SourceGraphic" in2="blur" operator="over" />
+    </filter>
+```
+
+- Dont forget to update the name everywhere it excists in the code
+
+```yaml
+    <path d="M120,120 L180,120 L210,170 L90,170 Z" class="${state === 'on' ? 'light-cone-active' : 'light-cone'}"
+    filter="${state === 'on' ? 'url(#ceilinglightGlow)' : ''}" />
+```
+
+### Using SVGs as MDI Icon Replacements
+
+Another use case is to use these SVGs as replacements for existing MDI icons that are not dynamic. Standard Home Assistant icons are static, but these SVG components can provide visual feedback by:
+
+1. Changing colors based on entity states or thresholds
+2. Filling to different levels to represent percentages or values
+3. Displaying actual numerical data within the icon itself
+4. Animating to show status changes or alerts
+
+### Creating Your Own Components
 
 You can use the existing components as templates to create your own custom visualizations:
 
@@ -148,3 +214,4 @@ Contributions to this library are welcome! Please feel free to submit pull reque
 ## License
 
 MIT
+
