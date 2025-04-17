@@ -144,7 +144,7 @@ You can extract the JavaScript code from inside each card's custom field and pla
 2. Position and scale components independently to create a custom layout
 3. Add your own styling and background elements to create a unique design
 
-The example image shows a living room card with good air quality, 13μg/m³, the purifier is working on minimum speed, the ceiling light is off, the standing light in the corner is on and on full brightness, the window and window shutter are closed (i combined the shutter and window functionality into 1 SVG and 1 custom field), the temperature is a lovely 19.8°C and humidity is around 57%. 
+The example image shows a visual representation of a living room with good air quality, 13μg/m³, the purifier is working on minimum speed, the ceiling light is off, the standing light in the corner is on and on full brightness, the window and window shutter are closed (i combined the shutter and window functionality into 1 SVG and 1 custom field), the temperature is a lovely 19.8°C and humidity is around 57%. 
 
 #### WARNING: make sure you use different naming schemes when combining custom fields into your own button-card.
 
