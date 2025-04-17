@@ -102,7 +102,8 @@ triggers_update:
 custom_fields:
   svg_component: |
     [[[ 
-      let entity_id = 'sensor.battery_soc';
+      let entity_id = 'sensor.your_main_entity';
+      let textTransform = 'uppercase';
 
       return `
         <div style="width: 100%; padding: 5px; position: relative;">
