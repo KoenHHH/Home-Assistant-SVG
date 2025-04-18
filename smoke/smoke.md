@@ -4,8 +4,6 @@ A custom button card for Home Assistant that displays smoke detectors with a rea
 
 ![smoke](https://github.com/user-attachments/assets/872fbe9e-81f9-474d-97ce-ba7050b43865)
 
-<img width="125" alt="smoke" src="https://github.com/user-attachments/assets/7ee3af61-28c4-47a0-a6f0-f9b418f3a280" />
-
 ## Overview
 
 This card creates a visual representation of your smoke detector that:
