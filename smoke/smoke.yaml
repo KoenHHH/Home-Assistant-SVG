@@ -1,0 +1,268 @@
+type: custom:button-card
+entity: binary_sensor.smoke_detector
+show_name: false
+show_icon: false
+triggers_update:
+  - binary_sensor.smoke_detector
+  - sensor.smoke_detector_battery
+custom_fields:
+  smoke: |
+    [[[
+      // Get the entity IDs
+      let smoke_entity_id = 'binary_sensor.smoke_detector';
+      let battery_entity_id = 'sensor.smoke_detector_battery';
+      
+      // Get states
+      let smoke_state = entity.state; // 'on' or 'off'
+      let battery_level = parseFloat(states[battery_entity_id]?.state || 0);
+      let displayState = smoke_state === 'on' ? 'detected' : 'not detected';
+      
+      // Determine battery LED color
+      let batteryColor;
+      if (battery_level >= 70) {
+        batteryColor = '#4CAF50'; // Green for good battery
+      } else if (battery_level >= 30) {
+        batteryColor = '#FF9800'; // Orange for medium battery
+      } else {
+        batteryColor = '#F44336'; // Red for low battery
+      }
+      
+      // Layout configuration
+      let divDisplay = 'flex';
+      let widthSVG = '100%';
+      let heightSVG = 'auto';
+      let paddingDIV = '0';
+     
+      // Text configuration
+      let fontSizeSmoke = '32px';
+      let fontSizeName = '32px';
+      let fontWeight = 'bold';
+      let textTransform = 'uppercase';
+
+      // Color configuration for different states
+      let color_inactive = '#f0f0f0'; // Light gray for inactive state
+      let color_active = '#ff9800';  // Orange color when smoke detected
+      let sensorBaseColor = '#e0e0e0'; // Base color of the sensor body
+      
+      // Additional styling options
+      let nameColor = 'white';
+      let displayName1 = 'visible';
+      let displayName2 = 'visible';
+      let displayStatus = 'visible';
+      
+      // Split name configuration
+      let wordLimit = 2;
+      
+      // Get friendly name of entity or format entity ID
+      let entity_name = entity.attributes?.friendly_name ||
+                        entity.entity_id.replace(/binary_sensor\./, '').replace(/_/g, ' ');
+
+      // Split entity name for multi-line display
+      let words = entity_name.split(" ");
+      let firstWords = words.slice(0, wordLimit).join(" ") || " ";
+      let restOfName = words.slice(wordLimit).join(" ") || " ";
+
+      // Generate and return the SVG visualization
+      return `
+        <div style="display: ${divDisplay}; flex-direction: column; align-items: center; padding: ${paddingDIV};">
+          <svg viewBox="0 0 300 240" width="${widthSVG}" height="${heightSVG}" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+              <!-- Shadow filter for base -->
+              <filter id="baseShadow" x="-20%" y="-20%" width="140%" height="140%">
+                <feDropShadow dx="2" dy="2" stdDeviation="3" flood-opacity="0.3" />
+              </filter>
+              
+              <!-- Shadow and highlight effects for the dome to create 3D effect -->
+              <filter id="dome3D" x="-50%" y="-50%" width="200%" height="200%">
+                <!-- Drop shadow for depth -->
+                <feGaussianBlur in="SourceAlpha" stdDeviation="2" result="blur" />
+                <feOffset dx="1" dy="1" result="offsetBlur" />
+                <feComponentTransfer result="shadow">
+                  <feFuncA type="linear" slope="0.4" />
+                </feComponentTransfer>
+                
+                <!-- Lighting effect from top-left for 3D -->
+                <feSpecularLighting in="blur" surfaceScale="5" specularConstant="0.8" 
+                                    specularExponent="20" lighting-color="#ffffff" result="specOut">
+                  <fePointLight x="50" y="20" z="100" />
+                </feSpecularLighting>
+                <feComposite in="specOut" in2="SourceAlpha" operator="in" result="specOut2" />
+                <feComposite in="SourceGraphic" in2="specOut2" operator="arithmetic" 
+                            k1="0" k2="1" k3="1" k4="0" result="litSource" />
+                
+                <!-- Combine all effects -->
+                <feMerge>
+                  <feMergeNode in="offsetBlur" />
+                  <feMergeNode in="litSource" />
+                </feMerge>
+              </filter>
+              
+              <!-- Base curve/edge effect for the body -->
+              <linearGradient id="baseEdgeGradient" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stop-color="#ffffff" stop-opacity="0.9" />
+                <stop offset="100%" stop-color="#d0d0d0" stop-opacity="1" />
+              </linearGradient>
+              
+              <!-- Gradients for states -->
+              <radialGradient id="inactiveGradient" cx="0.5" cy="0.5" r="0.7" fx="0.3" fy="0.3">
+                <stop offset="0%" stop-color="#ffffff" />
+                <stop offset="70%" stop-color="${color_inactive}" />
+                <stop offset="100%" stop-color="#d0d0d0" />
+              </radialGradient>
+              
+              <radialGradient id="activeGradient" cx="0.5" cy="0.5" r="0.7" fx="0.3" fy="0.3">
+                <stop offset="0%" stop-color="#ffcc80" />
+                <stop offset="70%" stop-color="${color_active}" />
+                <stop offset="100%" stop-color="#e65100" />
+              </radialGradient>
+              
+              <!-- Advanced smoke effects -->
+              <filter id="smokeFilter" x="-50%" y="-50%" width="200%" height="200%">
+                <feTurbulence type="fractalNoise" baseFrequency="0.01" numOctaves="3" result="noise" />
+                <feDisplacementMap in="SourceGraphic" in2="noise" scale="10" xChannelSelector="R" yChannelSelector="G" />
+              </filter>
+              
+              <!-- Realistic smoke particles -->
+              <radialGradient id="smokeParticle" cx="0.5" cy="0.5" r="0.5">
+                <stop offset="0%" stop-color="white" stop-opacity="0.7" />
+                <stop offset="40%" stop-color="#e0e0e0" stop-opacity="0.5" />
+                <stop offset="100%" stop-color="#a0a0a0" stop-opacity="0" />
+              </radialGradient>
+            </defs>
+            
+            <style>
+              @keyframes pulse {
+                0%, 100% { fill: url(#activeGradient); }
+                50% { fill: #ff5722; }
+              }
+              
+              @keyframes spin {
+                0% { transform: rotate(0deg); }
+                100% { transform: rotate(360deg); }
+              }
+              
+              @keyframes float {
+                0% { transform: translateY(0) scale(1); opacity: 0.7; }
+                50% { opacity: 0.5; }
+                100% { transform: translateY(-80px) scale(1.5); opacity: 0; }
+              }
+              
+              @keyframes drift {
+                0% { transform: translateX(0); }
+                50% { transform: translateX(10px); }
+                100% { transform: translateX(0); }
+              }
+              
+              .sensor-dome-inactive {
+                fill: url(#inactiveGradient);
+              }
+              .sensor-dome-active {
+                fill: url(#activeGradient);
+                animation: pulse 1s ease-in-out infinite;
+              }
+              .data {
+                text-transform: ${textTransform};
+              }
+              
+              /* Edge effect on base to enhance depth */
+              .sensor-base {
+                fill: url(#baseEdgeGradient);
+              }
+              
+              .smoke-particle {
+                fill: url(#smokeParticle);
+              }
+              
+              .battery-led {
+                filter: drop-shadow(0 0 2px ${batteryColor});
+              }
+            </style> 
+            
+            <!-- Smoke Detector Structure -->
+            <!-- First create base plate with circular design -->
+            <circle cx="150" cy="65" r="50" class="sensor-base" filter="url(#baseShadow)" />
+                  
+            <!-- Inner circular part -->
+            <circle cx="150" cy="65" r="42" fill="#f5f5f5" />
+            
+            <!-- Central button/indicator -->
+            <circle cx="150" cy="65" r="30" 
+                    class="${smoke_state === 'on' ? 'sensor-dome-active' : 'sensor-dome-inactive'}" 
+                    filter="url(#dome3D)" />
+            
+            <!-- Battery status LED indicator -->
+            <circle cx="175" cy="42" r="5" fill="${batteryColor}" class="battery-led" />
+            
+            <!-- Air vents (stylized lines) -->
+            <g stroke="#d0d0d0" stroke-width="1.5">
+              ${Array.from({length: 8}, (_, i) => {
+                const angle = (i * 45) * (Math.PI / 180);
+                const x1 = 150 + Math.cos(angle) * 38;
+                const y1 = 65 + Math.sin(angle) * 38;
+                const x2 = 150 + Math.cos(angle) * 48;
+                const y2 = 65 + Math.sin(angle) * 48;
+                return `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" />`;
+              }).join('')}
+            </g>
+            
+            <!-- Animated spinning light for active state -->
+            <g transform="translate(150, 65)" ${smoke_state === 'on' ? 'style="animation: spin 4s linear infinite;"' : ''}>
+              ${smoke_state === 'on' ? Array.from({length: 8}, (_, i) => {
+                const angle = (i * 45) * (Math.PI / 180);
+                const x1 = Math.cos(angle) * 30;
+                const y1 = Math.sin(angle) * 30;
+                const x2 = Math.cos(angle) * 40;
+                const y2 = Math.sin(angle) * 40;
+                return `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="#ff9800" stroke-width="2" />`;
+              }).join('') : ''}
+            </g>
+            
+            <!-- Realistic smoke effect -->
+            ${smoke_state === 'on' ? `
+              <g filter="url(#smokeFilter)">
+                <!-- Multiple smoke particles with different animations -->
+                ${Array.from({length: 15}, (_, i) => {
+                  const randomX = 150 + (Math.random() * 60 - 30);
+                  const randomY = 65 + (Math.random() * 30 - 15);
+                  const randomSize = 10 + Math.random() * 20;
+                  const randomDelay = Math.random() * 4;
+                  const randomDuration = 3 + Math.random() * 4;
+                  
+                  return `
+                    <circle cx="${randomX}" cy="${randomY}" r="${randomSize}" 
+                            class="smoke-particle" 
+                            style="animation: float ${randomDuration}s ease-in-out ${randomDelay}s infinite, 
+                                   drift ${randomDuration * 1.5}s ease-in-out ${randomDelay}s infinite;" />
+                  `;
+                }).join('')}
+              </g>
+              
+              <!-- Smoke effect overlay -->
+              <rect x="50" y="15" width="200" height="100" 
+                    fill="url(#smokeParticle)" 
+                    opacity="0.4" 
+                    filter="url(#smokeFilter)" />
+            ` : ''}
+            
+            <!-- Status text -->
+            <text text-anchor="middle" x="150" y="150" class="data" display="${displayStatus}" 
+                  font-size="${fontSizeSmoke}" font-weight="${fontWeight}" fill="${nameColor}">
+              ${displayState}
+            </text>
+            <text text-anchor="middle" x="150" y="190" class="data" display="${displayName1}" 
+                  font-size="${fontSizeName}" font-weight="${fontWeight}" fill="${nameColor}">
+              ${firstWords}
+            </text>
+            <text text-anchor="middle" x="150" y="220" class="data" display="${displayName2}" 
+                  font-size="${fontSizeName}" font-weight="${fontWeight}" fill="${nameColor}">
+              ${restOfName}
+            </text>
+          </svg>
+        </div>
+      `;
+    ]]]
+styles:
+  card:
+    - position: relative
+    - display: block
+    - width: 100%
