@@ -33,7 +33,7 @@ A stylish, customizable temperature visualization card for Home Assistant that d
 
 ## Entity Requirements
 
-The card expects a standard Home Assistant cover entity with these characteristics:
+The card expects a standard Home Assistant temperature entity with these characteristics:
 
 | Entity Type | Purpose |
 |-------------|---------|
