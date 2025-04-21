@@ -116,8 +116,9 @@ custom_fields:
 
             <rect x="20" y="20" width="100" height="100" rx="10" ry="10" fill="white" />
             <circle cx="20" cy="20" r="10" fill="white" />
-            <text text-anchor="middle" class="text" x="20" y="40" fill="white" font-size="12">${entity_id}</text>
-            
+            <text text-anchor="middle" class="text" x="20" y="40" fill="white" font-size="12">
+                ${entity_id}
+            </text>
            </svg>
          </div>
       `;
