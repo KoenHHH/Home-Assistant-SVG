@@ -5,7 +5,7 @@ show_icon: false
 triggers_update:
   - sensor.time
 variables:
-  use_24h_format: true
+  use_24h_format: false
 custom_fields:
   clock: |
     [[[
@@ -19,7 +19,7 @@ custom_fields:
       let use24hFormat = variables.use_24h_format;
       
       // Timezone configuration - change as needed
-      let timezone = "Europe/Brussels";  // Default timezone
+      let timezone = "Europe/London";  // Default timezone
       
       // Calculate the current time from time entity
       let time = new Date();
