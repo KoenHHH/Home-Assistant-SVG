@@ -1,0 +1,178 @@
+type: custom:button-card
+entity: sensor.time
+show_name: false
+show_icon: false
+triggers_update:
+  - sensor.time
+variables:
+  use_24h_format: true
+custom_fields:
+  clock: |
+    [[[
+      // Get the entity ID of the time sensor
+      let entity_id = 'sensor.time';
+      
+      // Get current time from the entity or system
+      let timeStr = states[entity_id].state;
+      
+      // Get format preference from variables
+      let use24hFormat = variables.use_24h_format;
+      
+      // Timezone configuration - change as needed
+      let timezone = "Europe/Brussels";  // Default timezone
+      
+      // Calculate the current time from time entity
+      let time = new Date();
+      if (timeStr) {
+        // Handle time format (HH:MM or HH:MM:SS)
+        let [hours, minutes] = timeStr.split(':').map(Number);
+        time.setHours(hours);
+        time.setMinutes(minutes);
+      }
+      
+      // Calculate clock hands angles
+      let hoursAngle = (time.getHours() % 12 + time.getMinutes() / 60) * 30;  // 30 degrees per hour
+      let minutesAngle = time.getMinutes() * 6;  // 6 degrees per minute
+      
+      // Layout configuration
+      let divDisplay = 'flex';
+      let widthSVG = '100%';
+      let heightSVG = 'auto';
+      let paddingDIV = '0';
+     
+      // Text configuration
+      let fontSizeState = '32px';
+      let fontSizeTimezone = '24px';  // Size for timezone display
+      let fontWeight = 'bold';
+      let textTransform = 'uppercase';
+      
+      // Color configuration
+      let clockFaceColor = '#506587';   // Blue-grey face
+      let clockBorderColor = 'white';   // White border
+      let hourHandColor = 'white';      // White hour hand
+      let minuteHandColor = 'white';    // White minute hand
+      let markerColor = 'white';        // White hour markers
+      let textColor = 'white';          // White text
+      
+      // Clock dimensions
+      let clockRadius = 65;             // Clock radius
+      let clockCenterX = 150;           // Center X position
+      let clockCenterY = 85;            // Center Y position
+      
+      // Hand dimensions
+      let hourHandLength = clockRadius * 0.5;    // 50% of radius
+      let minuteHandLength = clockRadius * 0.7;  // 70% of radius
+      
+      // Get friendly name of entity or use default
+      let entity_name = states[entity_id].attributes?.friendly_name || "Clock";
+      
+      // Format time based on user preference
+      let timeDisplay;
+      if (use24hFormat) {
+        // 24-hour format
+        let hours24 = time.getHours().toString().padStart(2, '0');
+        let minutes = time.getMinutes().toString().padStart(2, '0');
+        timeDisplay = `${hours24}:${minutes}`;
+      } else {
+        // 12-hour format with AM/PM
+        let hours12 = time.getHours() % 12 || 12;
+        let minutes = time.getMinutes().toString().padStart(2, '0');
+        let ampm = time.getHours() >= 12 ? 'PM' : 'AM';
+        timeDisplay = `${hours12}:${minutes} ${ampm}`;
+      }
+      
+      // Generate hour markers
+      let hourMarkers = [];
+      for (let i = 0; i < 12; i++) {
+        let angle = i * 30 * Math.PI / 180;  // 30 degrees per hour, convert to radians
+        let markerLength = i % 3 === 0 ? 12 : 6; // Longer markers for 12, 3, 6, 9
+        let markerWidth = i % 3 === 0 ? 2 : 1;   // Thicker markers for 12, 3, 6, 9
+        
+        let x1 = clockCenterX + (clockRadius - markerLength) * Math.sin(angle);
+        let y1 = clockCenterY - (clockRadius - markerLength) * Math.cos(angle);
+        let x2 = clockCenterX + clockRadius * Math.sin(angle);
+        let y2 = clockCenterY - clockRadius * Math.cos(angle);
+        
+        hourMarkers.push(`<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="${markerColor}" stroke-width="${markerWidth}" />`);
+      }
+      
+      // Generate all hour numbers
+      let hourNumbers = [];
+      for (let i = 1; i <= 12; i++) {
+        let angle = i * 30 * Math.PI / 180;  // 30 degrees per hour, convert to radians
+        let numberRadius = clockRadius - 20;  // Position numbers inside the markers
+        
+        let x = clockCenterX + numberRadius * Math.sin(angle);
+        let y = clockCenterY - numberRadius * Math.cos(angle);
+        
+        hourNumbers.push(`<text x="${x}" y="${y}" text-anchor="middle" dominant-baseline="middle" fill="${markerColor}" font-size="12" font-weight="bold">${i}</text>`);
+      }
+      
+      // Generate and return the SVG clock visualization
+      return `
+        <div style="display: ${divDisplay}; flex-direction: column; align-items: center; padding: ${paddingDIV};">
+          <svg viewBox="0 0 300 240" width="${widthSVG}" height="${heightSVG}" xmlns="http://www.w3.org/2000/svg">
+            <style>
+              .hour-hand {
+                transform-origin: ${clockCenterX}px ${clockCenterY}px;
+                transform: rotate(${hoursAngle}deg);
+              }
+              .minute-hand {
+                transform-origin: ${clockCenterX}px ${clockCenterY}px;
+                transform: rotate(${minutesAngle}deg);
+              }
+              .data {
+                text-transform: ${textTransform};
+              }
+            </style>   
+            
+            <!-- Clock face -->
+            <circle cx="${clockCenterX}" cy="${clockCenterY}" r="${clockRadius}" fill="${clockFaceColor}" stroke="${clockBorderColor}" stroke-width="3" />
+            
+            <!-- Hour markers -->
+            ${hourMarkers.join('')}
+            
+            <!-- Hour numbers -->
+            ${hourNumbers.join('')}
+            
+            <!-- Hour hand -->
+            <line 
+              class="hour-hand" 
+              x1="${clockCenterX}" 
+              y1="${clockCenterY}" 
+              x2="${clockCenterX}" 
+              y2="${clockCenterY - hourHandLength}" 
+              stroke="${hourHandColor}" 
+              stroke-width="5" 
+              stroke-linecap="round" 
+            />
+            
+            <!-- Minute hand -->
+            <line 
+              class="minute-hand" 
+              x1="${clockCenterX}" 
+              y1="${clockCenterY}" 
+              x2="${clockCenterX}" 
+              y2="${clockCenterY - minuteHandLength}" 
+              stroke="${minuteHandColor}" 
+              stroke-width="3" 
+              stroke-linecap="round" 
+            />
+            
+            <!-- Center pivot point -->
+            <circle cx="${clockCenterX}" cy="${clockCenterY}" r="4" fill="${clockBorderColor}" />
+            
+            <!-- Digital time display -->
+            <text text-anchor="middle" x="${clockCenterX}" y="${clockCenterY + clockRadius + 40}" class="data" font-size="${fontSizeState}" font-weight="${fontWeight}" fill="${textColor}">${timeDisplay}</text>
+            
+            <!-- Timezone display -->
+            <text text-anchor="middle" x="${clockCenterX}" y="${clockCenterY + clockRadius + 65}" class="data" font-size="${fontSizeTimezone}" font-weight="${fontWeight}" fill="${textColor}">${timezone}</text>
+          </svg>
+        </div>
+      `;
+    ]]]
+styles:
+  card:
+    - position: relative
+    - display: block
+    - width: 100%
