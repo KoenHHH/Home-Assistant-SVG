@@ -1,0 +1,110 @@
+type: custom:button-card
+entity: binary_sensor.door_sensor_contact  # Replace with your door sensor entity
+show_name: false
+show_icon: false
+triggers_update:
+  - binary_sensor.door_sensor_contact  # Replace with your door sensor entity
+custom_fields:
+  door: |
+    [[[
+      // Get the entity ID of the door sensor, replace with your door sensor entity
+      let entity_id = 'binary_sensor.door_sensor_contact';
+      
+      // Get the current state (on/off or open/closed)
+      let state = states[entity_id].state;
+      let isOpen = (state === 'on' || state === 'open');
+      
+      // Layout configuration
+      let divDisplay = 'flex';
+      let widthSVG = '100%';
+      let heightSVG = 'auto';
+      let paddingDIV = '0';
+     
+      // Text configuration
+      let fontSizeState = '32px';
+      let fontSizeName = '32px';
+      let fontWeight = 'bold';
+      let textTransform = 'uppercase';
+      
+      // Color configuration
+      let color_open = '#506587';       // Color for open door
+      let color_closed = '#506587';     // Color for closed door
+      let colorFrame = 'white';         // Color of the door frame
+      let doorColor = '#506587';        // Color of the door
+      
+      // Determine door background color based on state
+      let doorPaneColor = isOpen ? color_open : color_closed;
+      let stateText = isOpen ? 'OPEN' : 'CLOSED';
+      
+      // Additional styling options
+      let nameColor = 'white';          // Color of entity name
+      let displayName1 = 'visible';     // Show/hide first part of name
+      let displayName2 = 'visible';     // Show/hide second part of name
+      let displayState = 'visible';     // Show/hide state
+
+      // Split name configuration
+      let wordLimit = 2;  // Number of words on first line
+
+      // Get friendly name of entity or format entity ID
+      let entity_name = states[entity_id].attributes?.friendly_name ||
+                        entity_id.replace(/binary_sensor\./, '')
+                                .replace(/_contact$/, '')
+                                .replace(/_/g, ' ');
+
+      // Split entity name for multi-line display
+      let words = entity_name.split(" ");
+      let firstWords = words.slice(0, wordLimit).join(" ") || " ";
+      let restOfName = words.slice(wordLimit).join(" ") || " ";
+
+      let transitionDuration = "0.6s";  // Animation duration for smooth effect
+      
+      // Define door coordinates for closed and open states
+      // For open state, we'll draw the door at an angle
+      let doorOpenPath = "M122,22 L80,40 L80,126 L122,108 Z";
+      let doorClosedPath = "M122,22 L178,22 L178,108 L122,108 Z";
+      let doorPath = isOpen ? doorOpenPath : doorClosedPath;
+      
+      // Handle position adjustments
+      let handleCX = isOpen ? "-10" : "170";
+      let handleCY = isOpen ? "65" : "60";
+
+      // Generate and return the SVG door visualization
+      return `
+        <div style="display: ${divDisplay}; flex-direction: column; align-items: center; padding: ${paddingDIV};">
+          <svg viewBox="0 0 300 240" width="${widthSVG}" height="${heightSVG}" xmlns="http://www.w3.org/2000/svg">
+            <style>
+              .door-element {
+                transition: all ${transitionDuration} ease;
+              }
+              .data {
+                text-transform: ${textTransform};
+              }
+            </style>   
+            
+            <!-- Door frame -->
+            <rect x="120" y="20" width="60" height="90" rx="2" ry="2" fill="#b3e5fc" stroke="${colorFrame}" stroke-width="5" />
+            
+            <!-- Door -->
+            <path d="${doorPath}" class="door-element" fill="${doorColor}" stroke="white" stroke-width="1" />
+            <path d="${doorPath}" class="door-element" fill="${doorPaneColor}" stroke="none" transform="scale(0.95) translate(8, 3)" />
+            
+            <!-- Door handle -->
+            <circle cx="${handleCX}" cy="${handleCY}" r="4" class="door-element" fill="white" />
+            
+            <!-- State display -->
+            <text text-anchor="middle" x="150" y="150" class="data" display="${displayState}" font-size="${fontSizeState}" font-weight="${fontWeight}" fill="${doorColor}">${stateText}</text>
+            
+            <!-- Entity name - first line -->
+            <text text-anchor="middle" x="150" y="190" class="data" display="${displayName1}" font-size="${fontSizeName}" font-weight="${fontWeight}" fill="${nameColor}">${firstWords}</text>
+            
+            <!-- Entity name - second line -->
+            <text text-anchor="middle" x="150" y="220" class="data" display="${displayName2}" font-size="${fontSizeName}" font-weight="${fontWeight}" fill="${nameColor}">${restOfName}</text>
+          </svg>
+        </div>
+      `;
+    ]]]
+styles:
+  card:
+    - position: relative
+    - display: block
+    - width: 100%
