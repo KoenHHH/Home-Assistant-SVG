@@ -1,0 +1,246 @@
+type: custom:button-card
+entity: sensor.time
+show_name: false
+show_icon: false
+triggers_update:
+  - sensor.time
+variables:
+  use_24h_format: false
+  timezone: Europe/London
+custom_fields:
+  clock: |
+    [[[
+      // Get the entity ID of the time sensor
+      let entity_id = 'sensor.time';
+      
+      // Get current time from the entity or system
+      let timeStr = states[entity_id].state;
+      
+      // Get format preference from variables
+      let use24hFormat = variables.use_24h_format;
+      
+      // Timezone configuration - change as needed
+      let timezone = variables.timezone || "Europe/London";  // Default timezone
+      
+      // Calculate the current time from time entity
+      let time = new Date();
+      if (timeStr) {
+        // Handle time format (HH:MM or HH:MM:SS)
+        let [hours, minutes] = timeStr.split(':').map(Number);
+        time.setHours(hours);
+        time.setMinutes(minutes);
+      }
+      
+      // Layout configuration
+      let divDisplay = 'flex';
+      let widthSVG = '100%';
+      let heightSVG = 'auto';
+      let paddingDIV = '0';
+     
+      // Text configuration
+      let fontSizeTimezone = '32px';  // Size for timezone display
+      let fontWeight = 'bold';
+      let textTransform = 'uppercase';
+      
+      // Color configuration
+      let backgroundColor = 'black';   // Black background
+      let digitColor = '#ff0000';      // Red LED color
+      let dimmedColor = '#330000';     // Dimmed segments color
+      let textColor = 'white';         // White text for timezone
+      
+      // Clock dimensions - using original values
+      let clockCenterX = 150;           
+      let clockCenterY = 85;            
+      
+      // Format time based on user preference
+      let hours = use24hFormat ? 
+        time.getHours().toString().padStart(2, '0') : 
+        (time.getHours() % 12 || 12).toString().padStart(2, '0');
+      let minutes = time.getMinutes().toString().padStart(2, '0');
+      
+      // Split time into individual digits
+      let hourDigit1 = hours.charAt(0);
+      let hourDigit2 = hours.charAt(1);
+      let minuteDigit1 = minutes.charAt(0);
+      let minuteDigit2 = minutes.charAt(1);
+      
+      // Digital clock dimensions - adjusted for proper display
+      let digitWidth = 40;             
+      let digitHeight = 75;            
+      let digitSpacing = 10;            
+      let segmentThickness = 8;        // Consistent segment thickness
+      
+      // Background rectangle dimensions
+      let rectX = 40;
+      let rectY = 40;
+      let rectWidth = 220;
+      let rectHeight = 100;
+      
+      // Calculate starting positions to center the clock on the rectangle
+      let totalWidth = 4 * digitWidth + 3 * digitSpacing + segmentThickness;
+      let startX = rectX + (rectWidth - totalWidth) / 2;
+      let startY = rectY + (rectHeight - digitHeight) / 2;
+      
+      // Function to draw a 7-segment digit with properly angled joints
+      function drawDigit(x, y, digit) {
+        // Define segment states for each digit
+        const segmentStates = {
+          '0': [1,1,1,1,1,1,0],  // Segments a,b,c,d,e,f (not g)
+          '1': [0,1,1,0,0,0,0],  // Segments b,c
+          '2': [1,1,0,1,1,0,1],  // Segments a,b,d,e,g
+          '3': [1,1,1,1,0,0,1],  // Segments a,b,c,d,g
+          '4': [0,1,1,0,0,1,1],  // Segments b,c,f,g
+          '5': [1,0,1,1,0,1,1],  // Segments a,c,d,f,g
+          '6': [1,0,1,1,1,1,1],  // Segments a,c,d,e,f,g
+          '7': [1,1,1,0,0,0,0],  // Segments a,b,c
+          '8': [1,1,1,1,1,1,1],  // All segments
+          '9': [1,1,1,1,0,1,1],  // Segments a,b,c,d,f,g
+        };
+        
+        // Get segment states for the current digit
+        const segments = segmentStates[digit] || [0,0,0,0,0,0,0];
+        
+        // Calculate the mitred joins with 45-degree angles
+        const offset = segmentThickness / 2;
+        
+        // Define segments using polygons with proper 45-degree joins
+        const segmentPolygons = [
+          // a: top horizontal with angled ends
+          `<polygon points="${x+offset},${y} ${x+digitWidth-offset},${y} ${x+digitWidth-offset+offset},${y+offset} ${x+offset-offset},${y+offset}" 
+            fill="${segments[0] ? digitColor : dimmedColor}" />`,
+          
+          // b: top right vertical with angled ends
+          `<polygon points="${x+digitWidth},${y+offset} ${x+digitWidth},${y+digitHeight/2-offset} ${x+digitWidth-offset},${y+digitHeight/2} ${x+digitWidth-offset},${y+offset+offset}" 
+            fill="${segments[1] ? digitColor : dimmedColor}" />`,
+          
+          // c: bottom right vertical with angled ends and 45-degree corners
+          `<polygon points="${x+digitWidth},${y+digitHeight/2+offset} ${x+digitWidth},${y+digitHeight} ${x+digitWidth-offset},${y+digitHeight-offset-offset} ${x+digitWidth-offset},${y+digitHeight/2+offset-offset}" 
+            fill="${segments[2] ? digitColor : dimmedColor}" />`,
+          
+          // d: bottom horizontal with angled ends
+          `<polygon points="${x},${y+digitHeight} ${x+digitWidth},${y+digitHeight} ${x+digitWidth-offset},${y+digitHeight-offset} ${x+offset+offset},${y+digitHeight-offset}" 
+            fill="${segments[3] ? digitColor : dimmedColor}" />`,
+          
+          // e: bottom left vertical with angled ends and 45-degree corners
+          `<polygon points="${x},${y+digitHeight/2+offset} ${x},${y+digitHeight} ${x+offset},${y+digitHeight-offset-offset} ${x+offset},${y+digitHeight/2+offset-offset}" 
+            fill="${segments[4] ? digitColor : dimmedColor}" />`,
+          
+          // f: top left vertical with angled ends
+          `<polygon points="${x},${y+offset} ${x},${y+digitHeight/2-offset} ${x+offset},${y+digitHeight/2} ${x+offset},${y+offset+offset}" 
+            fill="${segments[5] ? digitColor : dimmedColor}" />`,
+          
+          // g: middle horizontal with angled ends
+          `<polygon points="${x+offset+offset},${y+digitHeight/2-offset} ${x+digitWidth-offset-offset},${y+digitHeight/2-offset} ${x+digitWidth-offset},${y+digitHeight/2} ${x+offset},${y+digitHeight/2}" 
+            fill="${segments[6] ? digitColor : dimmedColor}" />
+           `
+        ];
+        
+        // Join all segment polygons
+        return segmentPolygons.join('');
+      }
+      
+      // Modified special case for number 1 to ensure consistent thickness and background
+      function drawNumber1(x, y) {
+        // Define offset value inside this function
+        const offset = segmentThickness / 2;
+        
+        // Add full background for the digit 1
+        const backgroundPolygons = [
+          // Background for segments - all segments in dimmed color
+          // a: top horizontal
+          `<polygon points="${x+offset},${y} ${x+digitWidth-offset},${y} ${x+digitWidth-offset+offset},${y+offset} ${x+offset-offset},${y+offset}" 
+            fill="${dimmedColor}" />`,
+          
+          // f: top left vertical
+          `<polygon points="${x},${y+offset} ${x},${y+digitHeight/2-offset} ${x+offset},${y+digitHeight/2} ${x+offset},${y+offset+offset}" 
+            fill="${dimmedColor}" />`,
+            
+          // e: bottom left vertical with 45-degree corners
+          `<polygon points="${x},${y+digitHeight/2+offset} ${x},${y+digitHeight-offset} ${x+offset},${y+digitHeight-offset-offset} ${x+offset},${y+digitHeight/2+offset-offset}" 
+            fill="${dimmedColor}" />`,
+            
+          // d: bottom horizontal
+          `<polygon points="${x+offset},${y+digitHeight} ${x+digitWidth-offset},${y+digitHeight} ${x+digitWidth-offset-offset},${y+digitHeight-offset} ${x+offset+offset},${y+digitHeight-offset}" 
+            fill="${dimmedColor}" />`,
+            
+          // g: middle horizontal
+          `<polygon points="${x+offset+offset},${y+digitHeight/2-offset} ${x+digitWidth-offset-offset},${y+digitHeight/2-offset} ${x+digitWidth-offset},${y+digitHeight/2} ${x+offset},${y+digitHeight/2}" 
+            fill="${dimmedColor}" />
+           <polygon points="${x+offset},${y+digitHeight/2} ${x+digitWidth-offset},${y+digitHeight/2} ${x+digitWidth-offset-offset},${y+digitHeight/2+offset} ${x+offset+offset},${y+digitHeight/2+offset}" 
+            fill="${dimmedColor}" />`
+        ];
+        
+        // Active segments for the digit 1 (b and c)
+        const activeSegments = [
+          // b: top right vertical with angled ends and consistent thickness
+          `<polygon points="${x+digitWidth},${y+offset} ${x+digitWidth},${y+digitHeight/2-offset} ${x+digitWidth-offset},${y+digitHeight/2} ${x+digitWidth-offset},${y+offset+offset}" 
+            fill="${digitColor}" />`,
+          
+          // c: bottom right vertical with 45-degree angled corners
+          `<polygon points="${x+digitWidth},${y+digitHeight/2+offset} ${x+digitWidth},${y+digitHeight-offset} ${x+digitWidth-offset},${y+digitHeight-offset-offset} ${x+digitWidth-offset},${y+digitHeight/2+offset-offset}" 
+            fill="${digitColor}" />`
+        ];
+        
+        // Return both background and active segments
+        return backgroundPolygons.join('') + activeSegments.join('');
+      }
+      
+      // Draw colon separator with square dots
+      function drawColon(x, y) {
+        const dotSize = 8;
+        const spacing = 5;
+        
+        return `
+          <rect x="${x + spacing}" y="${y + digitHeight/3 - dotSize/2}" width="${dotSize}" height="${dotSize}" fill="${digitColor}" />
+          <rect x="${x + spacing}" y="${y + 2*digitHeight/3 - dotSize/2}" width="${dotSize}" height="${dotSize}" fill="${digitColor}" />
+        `;
+      }
+      
+      // Calculate position for colon
+      let colonX = startX + 2 * digitWidth + digitSpacing;
+      
+      // Format time for display text
+      let timeDisplay;
+      if (use24hFormat) {
+        timeDisplay = `${hours}:${minutes}`;
+      } else {
+        let ampm = time.getHours() >= 12 ? 'PM' : 'AM';
+        timeDisplay = `${hours}:${minutes} ${ampm}`;
+      }
+      
+      // Generate and return the SVG clock visualization
+      return `
+        <div style="display: ${divDisplay}; flex-direction: column; align-items: center; padding: ${paddingDIV};">
+          <svg viewBox="0 0 300 240" width="${widthSVG}" height="${heightSVG}" xmlns="http://www.w3.org/2000/svg">
+            <!-- Background rectangle -->
+            <rect x="${rectX}" y="${rectY}" width="${rectWidth}" height="${rectHeight}" fill="${backgroundColor}" rx="5" ry="5" />
+            
+            <!-- Digital clock display -->
+            <g>
+              ${hourDigit1 === '1' ? drawNumber1(startX, startY) : drawDigit(startX, startY, hourDigit1)}
+              ${hourDigit2 === '1' ? drawNumber1(startX + digitWidth + digitSpacing, startY) : drawDigit(startX + digitWidth + digitSpacing, startY, hourDigit2)}
+              
+              ${drawColon(colonX, startY)}
+              
+              ${minuteDigit1 === '1' ? drawNumber1(startX + 2*(digitWidth + digitSpacing) + segmentThickness, startY) : drawDigit(startX + 2*(digitWidth + digitSpacing) + segmentThickness, startY, minuteDigit1)}
+              ${minuteDigit2 === '1' ? drawNumber1(startX + 3*(digitWidth + digitSpacing) + segmentThickness, startY) : drawDigit(startX + 3*(digitWidth + digitSpacing) + segmentThickness, startY, minuteDigit2)}
+            </g>
+            
+            <!-- Timezone display below time -->
+            <text 
+              text-anchor="middle" 
+              x="${clockCenterX}" 
+              y="${clockCenterY + digitHeight/2 + 80}" 
+              font-size="${fontSizeTimezone}" 
+              font-weight="${fontWeight}" 
+              text-transform="${textTransform}" 
+              fill="${textColor}">${timezone}</text>
+          </svg>
+        </div>
+      `;
+    ]]]
+styles:
+  card:
+    - position: relative
+    - display: block
+    - width: 100%
